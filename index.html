@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Молитвенный Дневник</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
@@ -21,30 +21,49 @@
             --dark-color: #4A2C2A;
             --success-color: #4CAF50;
             --danger-color: #f44336;
+            --chat-bg: #ffffff;
+            --chat-border: #e0e0e0;
+            --text-color: #333;
+            --muted-color: #777;
+            --font-size-base: 16px;
         }
         
         body {
             background: var(--light-color);
             font-family: "Nunito", sans-serif;
-            color: #333;
+            color: var(--text-color);
             overflow-x: hidden;
             min-height: 100vh;
             position: relative;
-            transition: background 0.3s ease;
+            transition: background 0.3s ease, color 0.3s ease;
             background-size: cover;
             background-position: center;
+            font-size: var(--font-size-base);
+        }
+        
+        body.dark-mode {
+            --light-color: #2C2C2C;
+            --chat-bg: #3C3C3C;
+            --text-color: #EEE;
+            --muted-color: #BBB;
+            --chat-border: #555;
+            background: var(--light-color);
+            color: var(--text-color);
         }
         
         /* Header стили */
         header {
             height: 60px;
             padding: 10px 15px;
-            background-color: white;
+            background-color: var(--chat-bg);
             display: flex;
             align-items: center;
             justify-content: space-between;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            position: relative;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
             z-index: 100;
         }
         
@@ -69,14 +88,14 @@
         .burger-line {
             width: 24px;
             height: 2px;
-            background-color: #333;
+            background-color: var(--text-color);
             margin: 4px 0;
-            transition: 0.3s;
+            transition: 0.2s;
             border-radius: 2px;
         }
         
         .burger-btn.active .burger-line:nth-child(1) {
-            transform: translateY(8px) rotate(45deg);
+            transform: translateY(6px) rotate(45deg);
         }
         
         .burger-btn.active .burger-line:nth-child(2) {
@@ -84,7 +103,7 @@
         }
         
         .burger-btn.active .burger-line:nth-child(3) {
-            transform: translateY(-11px) rotate(-47deg);
+            transform: translateY(-15px) rotate(-40deg);
         }
         
         .app-title {
@@ -93,29 +112,15 @@
             color: var(--primary-color);
         }
         
-        .categories-btn {
-            background: none;
-            border: none;
-            font-size: 16px;
-            cursor: pointer;
-            color: var(--primary-color);
-            padding: 8px 15px;
-            border-radius: 20px;
-            transition: background 0.2s;
-        }
-        
-        .categories-btn:hover {
-            background: rgba(139, 69, 19, 0.1);
-        }
-        
         /* Боковое меню */
         .sidebar {
             position: fixed;
             top: 0;
-            left: -300px;
-            width: 300px;
+            left: -100%;
+            width: 80%;
+            max-width: 300px;
             height: 100%;
-            background: white;
+            background: var(--chat-bg);
             box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
             transition: left 0.3s ease;
             z-index: 99;
@@ -136,7 +141,7 @@
             background: rgba(0, 0, 0, 0.5);
             opacity: 0;
             visibility: hidden;
-            transition: opacity 0.4s ease;
+            transition: opacity 0.3s ease;
             z-index: 98;
         }
         
@@ -150,14 +155,14 @@
             align-items: center;
             padding: 15px 20px;
             text-decoration: none;
-            color: #333;
+            color: var(--text-color);
             transition: background 0.2s;
             border-left: 4px solid transparent;
             cursor: pointer;
         }
         
         .menu-item:hover {
-            background: #f9f9f9;
+            background: rgba(139, 69, 19, 0.1);
             border-left: 4px solid var(--primary-color);
         }
         
@@ -176,38 +181,148 @@
         /* Основной контент */
         .content {
             padding: 20px;
-            max-width: 800px;
+            max-width: 100%;
             margin: 0 auto;
             padding-top: 80px;
             padding-bottom: 100px;
+            position: relative;
         }
         
-        /* Стили для чата */
-        .chat-container {
-            background: white;
+        /* Стили для списка чатов */
+        .chats-container {
+            background: var(--chat-bg);
             border-radius: 12px;
-            padding: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 25px;
+            position: absolute;
+            width: calc(100% - 40px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .chats-container.active {
+            display: block;
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .chats-container.hidden {
+            opacity: 0;
+            transform: translateX(-100%);
+            pointer-events: none;
+        }
+        
+        .chat-list {
+            list-style: none;
+        }
+        
+        .chat-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid var(--chat-border);
+            cursor: pointer;
+            transition: background 0.2s;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.3s ease forwards;
+        }
+        
+        .chat-item:nth-child(1) { animation-delay: 0.1s; }
+        .chat-item:nth-child(2) { animation-delay: 0.15s; }
+        .chat-item:nth-child(3) { animation-delay: 0.2s; }
+        .chat-item:nth-child(4) { animation-delay: 0.25s; }
+        .chat-item:nth-child(5) { animation-delay: 0.3s; }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .chat-item:last-child {
+            border-bottom: none;
+        }
+        
+        .chat-item:hover {
+            background: rgba(139, 69, 19, 0.05);
+        }
+        
+        .chat-item.active {
+            background: rgba(139, 69, 19, 0.1);
+        }
+        
+        .chat-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .chat-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .chat-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--primary-color);
+        }
+        
+        .chat-preview {
+            font-size: 14px;
+            color: var(--muted-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .chat-time {
+            font-size: 12px;
+            color: var(--muted-color);
+            margin-left: 10px;
+            flex-shrink: 0;
+        }
+        
+        /* Стили для самого чата */
+        .chat-window {
+            background: var(--chat-bg);
+            border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             margin-bottom: 25px;
             display: none;
+            flex-direction: column;
+            height: calc(100vh - 160px);
+            position: absolute;
+            width: calc(100% - 40px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            opacity: 0;
+            transform: translateX(100%);
         }
         
-        .chat-container.active {
-            display: block;
-            animation: fadeIn 0.5s ease;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .chat-window.active {
+            display: flex;
+            opacity: 1;
+            transform: translateX(0);
         }
         
         .chat-header {
             display: flex;
             align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #eee;
+            padding: 10px 0px 10px 0px;
+            border-bottom: 1px solid var(--chat-border);
+            background: var(--chat-bg);
         }
         
         .back-btn {
@@ -215,7 +330,7 @@
             border: none;
             font-size: 18px;
             cursor: pointer;
-            margin-right: 10px;
+            margin-right: 15px;
             color: var(--primary-color);
             width: 40px;
             height: 40px;
@@ -237,118 +352,109 @@
         }
         
         .chat-messages {
-            max-height: 400px;
+            flex: 1;
+            padding: 15px;
             overflow-y: auto;
-            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
         
         .message {
+            max-width: 85%;
             padding: 12px 16px;
             border-radius: 18px;
-            margin-bottom: 10px;
-            max-width: 80%;
-            word-wrap: break-word;
             position: relative;
-        }
-        
-        .message.user {
-            background: #E8F5E9;
-            margin-left: auto;
-            border-bottom-right-radius: 5px;
-        }
-        
-        .message.ai {
+            word-wrap: break-word;
             background: #F3E5F5;
-            margin-right: auto;
+            align-self: flex-start;
             border-bottom-left-radius: 5px;
+            opacity: 0;
+            transform: translateY(10px);
+            margin-bottom: 10px;
+            animation: messageFadeIn 0.3s ease forwards;
+        }
+        
+        .message:nth-child(1) { animation-delay: 0.1s; }
+        .message:nth-child(2) { animation-delay: 0.15s; }
+        .message:nth-child(3) { animation-delay: 0.2s; }
+        .message:nth-child(4) { animation-delay: 0.25s; }
+        .message:nth-child(5) { animation-delay: 0.3s; }
+        
+        @keyframes messageFadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        body.dark-mode .message {
+            background: #4A2C2A;
         }
         
         .message-time {
             font-size: 11px;
-            color: #777;
+            color: var(--muted-color);
             margin-top: 5px;
             text-align: right;
         }
         
-        /* Стили для списка нужд */
-        .needs-list {
-            list-style: none;
-        }
-        
-        .need-item {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-            cursor: pointer;
-            transition: background 0.2s;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            background: #f9f9f9;
-        }
-        
-        .need-item:hover {
-            background: #f0f0f0;
-            transform: translateY(-2px);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        
-        .need-item:last-child {
-            border-bottom: none;
-        }
-        
-        .need-content {
-            flex: 1;
-        }
-        
-        .need-category {
-            font-size: 12px;
-            color: var(--primary-color);
-            background: rgba(139, 69, 19, 0.1);
-            padding: 3px 8px;
-            border-radius: 12px;
-            margin-top: 5px;
-            display: inline-block;
-        }
-        
-        .need-actions {
+        .message-actions {
             display: flex;
             gap: 10px;
+            margin-top: 5px;
+            justify-content: flex-end;
         }
         
-        .need-action {
-            background: none;
+        .message-action {
+            background: rgba(139, 69, 19, 0.1);
             border: none;
             cursor: pointer;
             color: var(--primary-color);
-            font-size: 16px;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 12px;
             transition: background 0.2s;
         }
         
-        .need-action:hover {
-            background: rgba(139, 69, 19, 0.1);
+        .message-action:hover {
+            background: rgba(139, 69, 19, 0.2);
+        }
+        
+        .message.answered {
+            opacity: 0.6;
+            text-decoration: line-through;
+            transition: opacity 0.3s ease, text-decoration 0.3s ease;
+        }
+        
+        .message-action.answer-btn {
+            background: rgba(76, 175, 80, 0.1);
+            color: var(--success-color);
+        }
+        
+        .message-action.answer-btn:hover {
+            background: rgba(76, 175, 80, 0.2);
         }
         
         /* Стили для добавления нужды */
         .add-need-form {
-            background: white;
+            background: var(--chat-bg);
             border-radius: 12px;
-            padding: 25px;
+            padding: 20px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             margin-bottom: 25px;
             display: none;
+            position: absolute;
+            width: calc(100% - 40px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            opacity: 0;
+            transform: translateX(100%);
         }
         
         .add-need-form.active {
             display: block;
-            animation: fadeIn 0.5s ease;
+            opacity: 1;
+            transform: translateX(0);
         }
         
         .form-group {
@@ -357,18 +463,27 @@
         
         .form-label {
             display: block;
-            margin-bottom: 8px;
+            margin: 10px 0px 10px 0px;
             font-weight: 600;
             color: var(--primary-color);
         }
         
         .form-input, .form-textarea {
             width: 100%;
+            margin-top: 10px;
             padding: 12px 15px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--chat-border);
             border-radius: 8px;
             font-family: "Nunito", sans-serif;
-            font-size: 16px;
+            font-size: var(--font-size-base);
+            background: var(--chat-bg);
+            color: var(--text-color);
+            transition: border 0.2s;
+        }
+        
+        .form-input:focus, .form-textarea:focus {
+            border-color: var(--primary-color);
+            outline: none;
         }
         
         .form-textarea {
@@ -384,12 +499,13 @@
         }
         
         .category-btn {
-            padding: 8px 15px;
-            background: #f0f0f0;
+            padding: 8px 15px 8px 15px;
+            background: rgba(139, 69, 19, 0.1);
             border: none;
             border-radius: 20px;
             cursor: pointer;
             font-family: "Nunito", sans-serif;
+            color: var(--text-color);
             transition: all 0.2s;
         }
         
@@ -416,7 +532,11 @@
             cursor: pointer;
             font-family: "Nunito", sans-serif;
             font-weight: 600;
-            transition: background 0.2s;
+            transition: background 0.2s, transform 0.1s;
+        }
+        
+        .form-btn:active {
+            transform: scale(0.98);
         }
         
         .cancel-btn {
@@ -424,8 +544,17 @@
             color: #333;
         }
         
+        body.dark-mode .cancel-btn {
+            background: #555;
+            color: #EEE;
+        }
+        
         .cancel-btn:hover {
             background: #e0e0e0;
+        }
+        
+        body.dark-mode .cancel-btn:hover {
+            background: #666;
         }
         
         .submit-btn {
@@ -439,28 +568,33 @@
         
         /* Стили для молитвенного раздела */
         .prayer-section {
-            background: white;
+            background: var(--chat-bg);
             border-radius: 12px;
-            padding: 25px;
+            padding: 20px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             margin-bottom: 25px;
             display: none;
+            position: absolute;
+            width: calc(100% - 40px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            opacity: 0;
+            transform: translateX(100%);
         }
         
         .prayer-section.active {
             display: block;
-            animation: fadeIn 0.5s ease;
+            opacity: 1;
+            transform: translateX(0);
         }
         
         .prayer-title {
             font-size: 20px;
             color: var(--primary-color);
-            margin-bottom: 15px;
-            text-align: center;
+            margin: 15px 0px 15px 0px;
         }
         
         .prayer-text {
-            background: #f9f9f9;
+            background: rgba(139, 69, 19, 0.05);
             padding: 20px;
             border-radius: 12px;
             margin-bottom: 20px;
@@ -468,12 +602,14 @@
             min-height: 150px;
             font-style: italic;
             border-left: 4px solid var(--primary-color);
+            color: var(--text-color);
         }
         
         .prayer-actions {
             display: flex;
             justify-content: center;
             gap: 15px;
+            flex-wrap: wrap;
         }
         
         .prayer-btn {
@@ -486,6 +622,10 @@
             transition: all 0.2s;
         }
         
+        .prayer-btn:active {
+            transform: scale(0.98);
+        }
+        
         .generate-btn {
             background: var(--primary-color);
             color: white;
@@ -493,7 +633,6 @@
         
         .generate-btn:hover {
             background: var(--dark-color);
-            transform: translateY(-2px);
         }
         
         .save-btn {
@@ -503,7 +642,6 @@
         
         .save-btn:hover {
             background: #3d8b40;
-            transform: translateY(-2px);
         }
         
         .delete-btn {
@@ -513,35 +651,38 @@
         
         .delete-btn:hover {
             background: #d32f2f;
-            transform: translateY(-2px);
         }
         
         /* Стили для настроек */
         .settings-panel {
-            background: white;
+            background: var(--chat-bg);
             border-radius: 12px;
-            padding: 25px;
+            padding: 20px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             margin-bottom: 25px;
             display: none;
+            position: absolute;
+            width: calc(100% - 40px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            opacity: 0;
+            transform: translateX(100%);
         }
         
         .settings-panel.active {
             display: block;
-            animation: fadeIn 0.5s ease;
+            opacity: 1;
+            transform: translateX(0);
         }
         
         .settings-title {
             font-size: 22px;
             color: var(--primary-color);
             margin-bottom: 20px;
-            display: flex;
-            align-items: center;
         }
         
         .settings-item {
             padding: 15px 0;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--chat-border);
         }
         
         .settings-item:last-child {
@@ -568,15 +709,16 @@
             border-radius: 8px;
             cursor: pointer;
             border: 2px solid transparent;
-            transition: transform 0.2s;
+            transition: transform 0.2s, border 0.2s;
         }
         
         .color-option:hover {
             transform: scale(1.1);
+            border-color: var(--primary-color);
         }
         
         .color-option.active {
-            border-color: #333;
+            border-color: var(--primary-color);
             transform: scale(1.1);
         }
         
@@ -591,24 +733,26 @@
             width: 40px;
             height: 40px;
             border-radius: 8px;
-            border: 1px solid #ddd;
-            background: white;
+            border: 1px solid var(--chat-border);
+            background: var(--chat-bg);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
             transition: background 0.2s;
+            color: var(--text-color);
         }
         
         .font-size-btn:hover {
-            background: #f0f0f0;
+            background: rgba(139, 69, 19, 0.1);
         }
         
         .font-size-value {
             min-width: 40px;
             text-align: center;
             font-weight: 600;
+            color: var(--text-color);
         }
         
         .custom-bg-upload {
@@ -633,6 +777,57 @@
             background: var(--dark-color);
         }
         
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
         /* Плавающие кнопки */
         .floating-buttons {
             position: fixed;
@@ -640,18 +835,18 @@
             right: 20px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 15px;
             z-index: 90;
         }
         
         .floating-btn {
-            width: 60px;
-            height: 60px;
+            width: 56px;
+            height: 56px;
             border-radius: 50%;
             border: none;
             background: var(--primary-color);
             color: white;
-            font-size: 20px;
+            font-size: 24px;
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             display: flex;
@@ -661,18 +856,13 @@
         }
         
         .floating-btn:hover {
-            transform: scale(1.1) translateY(-5px);
+            transform: scale(1.1);
             background: var(--dark-color);
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
         }
         
         /* Адаптивность */
         @media (max-width: 768px) {
-            .sidebar {
-                width: 280px;
-                left: -280px;
-            }
-            
             .content {
                 padding: 15px;
                 padding-top: 70px;
@@ -682,20 +872,13 @@
             .floating-buttons {
                 bottom: 15px;
                 right: 15px;
+                gap: 10px;
             }
             
             .floating-btn {
                 width: 50px;
                 height: 50px;
-                font-size: 18px;
-            }
-            
-            .form-actions {
-                flex-direction: column;
-            }
-            
-            .prayer-actions {
-                flex-direction: column;
+                font-size: 20px;
             }
         }
         
@@ -714,44 +897,51 @@
             to { transform: rotate(360deg); }
         }
         
-        /* Украшения */
-        .decoration {
-            position: fixed;
-            pointer-events: none;
-            z-index: -1;
-        }
-        
-        .cross {
-            top: 50%;
-            left: 10%;
-            font-size: 24px;
-            color: rgba(139, 69, 19, 0.1);
-        }
-        
-        .dove {
-            top: 20%;
-            right: 10%;
-            font-size: 28px;
-            color: rgba(139, 69, 19, 0.1);
-        }
-        
         /* Красивые скроллбары */
         ::-webkit-scrollbar {
-            width: 8px;
+            width: 6px;
         }
         
         ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
+            background: transparent;
         }
         
         ::-webkit-scrollbar-thumb {
             background: var(--secondary-color);
-            border-radius: 10px;
+            border-radius: 3px;
         }
         
         ::-webkit-scrollbar-thumb:hover {
             background: var(--primary-color);
+        }
+        
+        /* Улучшенные декоративные элементы */
+        .decoration {
+            position: fixed;
+            pointer-events: none;
+            z-index: -1;
+            font-size: 100px;
+            color: rgba(139, 69, 19, 0.05);
+            opacity: 0.5;
+        }
+        
+        .cross {
+            top: 40%;
+            left: 5%;
+            transform: rotate(-10deg);
+        }
+        
+        .dove {
+            bottom: 20%;
+            right: 5%;
+            transform: rotate(10deg);
+        }
+        
+        .need-category {
+            display: block;
+            font-size: 12px;
+            color: var(--muted-color);
+            margin-top: 5px;
         }
     </style>
 </head>
@@ -774,60 +964,64 @@
     
     <!-- Боковое меню -->
     <div class="sidebar" id="sidebar">
-        <div class="menu-item" data-target="main-chat">
+        <div class="menu-item" data-target="chats-list" aria-label="Главная">
             <div class="menu-icon"><i class="fas fa-home"></i></div>
             <div class="menu-text">Главная</div>
         </div>
         
-        <div class="menu-item" data-target="add-need">
+        <div class="menu-item" data-target="add-need" aria-label="Добавить нужду">
             <div class="menu-icon"><i class="fas fa-plus-circle"></i></div>
             <div class="menu-text">Добавить нужду</div>
         </div>
         
-        <div class="menu-item" data-target="prayer-generator">
+        <div class="menu-item" data-target="prayer-generator" aria-label="Помолиться за нужду">
             <div class="menu-icon"><i class="fas fa-pray"></i></div>
             <div class="menu-text">Помолиться за нужду</div>
         </div>
         
-        <div class="menu-item" data-target="settings">
+        <div class="menu-item" data-target="settings" aria-label="Настройки">
             <div class="menu-icon"><i class="fas fa-cog"></i></div>
             <div class="menu-text">Настройки</div>
         </div>
     </div>
     
     <!-- Затемнение фона -->
-    <div class="overlay" id="overlay"></div>
+    <div class="overlay" id="overlay" aria-hidden="true"></div>
     
     <!-- Основной контент -->
     <div class="content" id="content">
-        <!-- Главный чат -->
-        <div class="chat-container active" id="main-chat">
-            <div class="chat-header">
-                <h2 class="chat-title">Прочее</h2>
-            </div>
-            <div class="chat-messages">
-                <div class="message ai">
-                    Добро пожаловать в ваш молитвенный дневник! Здесь вы можете хранить свои молитвенные нужды и просьбы.
-                    <div class="message-time">Сегодня</div>
-                </div>
-            </div>
-            <ul class="needs-list" id="needs-list">
-                <!-- Нужды будут добавляться здесь динамически -->
+        <!-- Список чатов (категорий) -->
+        <div class="chats-container active" id="chats-list">
+            <ul class="chat-list" id="chat-list">
+                <!-- Чаты будут добавляться здесь динамически -->
             </ul>
+        </div>
+        
+        <!-- Окно чата -->
+        <div class="chat-window" id="chat-window">
+            <div class="chat-header">
+                <button class="back-btn" id="backToChats" aria-label="Назад к списку">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h2 class="chat-title" id="chat-title">Категория</h2>
+            </div>
+            <div class="chat-messages" id="chat-messages">
+                <!-- Сообщения будут добавляться здесь динамически -->
+            </div>
         </div>
         
         <!-- Форма добавления нужды -->
         <div class="add-need-form" id="add-need">
             <div class="chat-header">
-                <button class="back-btn" data-target="main-chat">
+                <button class="back-btn" data-target="chats-list" aria-label="Назад">
                     <i class="fas fa-arrow-left"></i>
                 </button>
                 <h2 class="chat-title">Добавить нужду</h2>
             </div>
             
             <div class="form-group">
-                <label class="form-label">Молитвенная нужда</label>
-                <textarea class="form-textarea" id="need-text" placeholder="Опишите вашу молитвенную нужду..."></textarea>
+                <label class="form-label" for="need-text">Молитвенная нужда</label>
+                <textarea class="form-textarea" id="need-text" placeholder="Опишите вашу молитвенную нужду..." aria-required="true"></textarea>
             </div>
             
             <div class="form-group">
@@ -835,11 +1029,11 @@
                 <div class="category-buttons" id="category-buttons">
                     <!-- Кнопки категорий будут добавляться здесь -->
                 </div>
-                <input type="text" class="form-input" id="new-category" placeholder="Или введите новую категорию" style="margin-top: 10px;">
+                <input type="text" class="form-input" id="new-category" placeholder="Или введите новую категорию" aria-label="Новая категория">
             </div>
             
             <div class="form-actions">
-                <button class="form-btn cancel-btn" data-target="main-chat">Отмена</button>
+                <button class="form-btn cancel-btn" data-target="chats-list">Отмена</button>
                 <button class="form-btn submit-btn" id="submit-need">Сохранить</button>
             </div>
         </div>
@@ -847,28 +1041,31 @@
         <!-- Генератор молитв -->
         <div class="prayer-section" id="prayer-generator">
             <div class="chat-header">
-                <button class="back-btn" data-target="main-chat">
+                <button class="back-btn" data-target="chats-list" aria-label="Назад">
                     <i class="fas fa-arrow-left"></i>
                 </button>
                 <h2 class="chat-title">Помолиться за нужду</h2>
             </div>
             
-            <h3 class="prayer-title">Случайные молитвенные нужды</h3>
+            <h3 class="prayer-title">Случайные нужды для молитвы</h3>
             
             <div id="random-needs">
-                <!-- Случайные нужды будут добавляться здесь -->
+                <!-- 5 случайных нужд будут добавляться здесь -->
             </div>
             
             <div class="prayer-text" id="prayer-text">
-                Нажмите "Сгенерировать молитву", чтобы создать молитву на основе выбранных нужд.
+                Нажмите "Сгенерировать молитву", чтобы создать молитву на основе этих нужд.
             </div>
             
             <div class="prayer-actions">
                 <button class="prayer-btn generate-btn" id="generate-prayer">
                     <i class="fas fa-wand-magic-sparkles"></i> Сгенерировать молитву
                 </button>
+                <button class="prayer-btn save-btn" id="save-prayer" style="display: none;">
+                    <i class="fas fa-save"></i> Сохранить молитву
+                </button>
                 <button class="prayer-btn delete-btn" id="delete-prayer">
-                    <i class="fas fa-trash"></i> Удалить молитву
+                    <i class="fas fa-trash"></i> Очистить
                 </button>
             </div>
         </div>
@@ -876,7 +1073,7 @@
         <!-- Настройки -->
         <div class="settings-panel" id="settings">
             <div class="chat-header">
-                <button class="back-btn" data-target="main-chat">
+                <button class="back-btn" data-target="chats-list" aria-label="Назад">
                     <i class="fas fa-arrow-left"></i>
                 </button>
                 <h2 class="chat-title">Настройки</h2>
@@ -906,15 +1103,25 @@
             <div class="settings-item">
                 <div class="settings-text">Размер текста</div>
                 <div class="font-size-control">
-                    <button class="font-size-btn" id="font-decrease">-</button>
+                    <button class="font-size-btn" id="font-decrease" aria-label="Уменьшить шрифт">-</button>
                     <span class="font-size-value" id="font-size-value">16</span>
-                    <button class="font-size-btn" id="font-increase">+</button>
+                    <button class="font-size-btn" id="font-increase" aria-label="Увеличить шрифт">+</button>
+                </div>
+            </div>
+            
+            <div class="settings-item">
+                <div class="settings-text">Темная тема</div>
+                <div class="toggle-switch">
+                    <label class="switch">
+                        <input type="checkbox" id="dark-mode-toggle">
+                        <span class="slider"></span>
+                    </label>
                 </div>
             </div>
             
             <div class="settings-item">
                 <div class="settings-text">Сбросить все данные</div>
-                <button class="prayer-btn" id="reset-data" style="background: var(--danger-color); color: white;">
+                <button class="prayer-btn delete-btn" id="reset-data">
                     <i class="fas fa-trash"></i> Сбросить
                 </button>
             </div>
@@ -923,10 +1130,10 @@
     
     <!-- Плавающие кнопки -->
     <div class="floating-buttons">
-        <button class="floating-btn" id="addNeedBtn" title="Добавить нужду">
+        <button class="floating-btn" id="addNeedBtn" title="Добавить нужду" aria-label="Добавить нужду">
             <i class="fas fa-plus"></i>
         </button>
-        <button class="floating-btn" id="prayerBtn" title="Помолиться">
+        <button class="floating-btn" id="prayerBtn" title="Помолиться" aria-label="Помолиться">
             <i class="fas fa-pray"></i>
         </button>
     </div>
@@ -940,16 +1147,18 @@
         const burgerBtn = document.getElementById('burgerBtn');
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');
-        const categoriesBtn = document.getElementById('categoriesBtn');
         const content = document.getElementById('content');
         const menuItems = document.querySelectorAll('.menu-item');
-        const backButtons = document.querySelectorAll('.back-btn');
-        const cancelButtons = document.querySelectorAll('.cancel-btn');
+        const backToChats = document.getElementById('backToChats');
         const addNeedBtn = document.getElementById('addNeedBtn');
         const prayerBtn = document.getElementById('prayerBtn');
-        const needsList = document.getElementById('needs-list');
+        const chatList = document.getElementById('chat-list');
+        const chatWindow = document.getElementById('chat-window');
+        const chatTitle = document.getElementById('chat-title');
+        const chatMessages = document.getElementById('chat-messages');
         const randomNeeds = document.getElementById('random-needs');
         const generatePrayerBtn = document.getElementById('generate-prayer');
+        const savePrayerBtn = document.getElementById('save-prayer');
         const prayerText = document.getElementById('prayer-text');
         const deletePrayerBtn = document.getElementById('delete-prayer');
         const colorOptions = document.querySelectorAll('.color-option');
@@ -963,25 +1172,32 @@
         const submitNeed = document.getElementById('submit-need');
         const bgUpload = document.getElementById('bg-upload');
         const bgUploadBtn = document.getElementById('bg-upload-btn');
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
         
         // Данные приложения
         let needs = JSON.parse(localStorage.getItem('prayerNeeds')) || [];
-        let categories = JSON.parse(localStorage.getItem('prayerCategories')) || ['Прочее'];
+        let categories = JSON.parse(localStorage.getItem('prayerCategories')) || ['Здоровье', 'Семья', 'Финансы', 'Духовный рост', 'Работа', 'Отношения', 'Другие'];
         let currentFontSize = parseInt(localStorage.getItem('fontSize')) || 16;
-        let selectedCategory = 'Прочее';
+        let selectedCategory = 'Другие';
         let currentPrayer = null;
+        let currentChat = null;
+        let randomPrayerNeeds = [];
         
         // Инициализация
         document.addEventListener('DOMContentLoaded', () => {
             updateFontSize(currentFontSize);
-            renderNeeds();
+            renderChatsList();
             loadBackgroundColor();
             renderCategoryButtons();
+            loadDarkMode();
             
-            // Загрузка фона из localStorage если есть
             const savedBg = localStorage.getItem('customBackground');
             if (savedBg) {
                 document.body.style.backgroundImage = `url(${savedBg})`;
+            }
+            
+            if (!localStorage.getItem('prayerCategories')) {
+                localStorage.setItem('prayerCategories', JSON.stringify(categories));
             }
         });
         
@@ -997,90 +1213,173 @@
         
         // Функция для переключения между разделами
         function switchSection(sectionId) {
-            document.querySelectorAll('.chat-container, .add-need-form, .prayer-section, .settings-panel').forEach(section => {
+            const sections = document.querySelectorAll('.chats-container, .chat-window, .add-need-form, .prayer-section, .settings-panel');
+            const targetSection = document.getElementById(sectionId);
+            
+            // Скрываем все секции
+            sections.forEach(section => {
+                section.classList.add('hidden');
                 section.classList.remove('active');
             });
             
-            document.getElementById(sectionId).classList.add('active');
+            // Показываем целевую секцию
+            setTimeout(() => {
+                targetSection.classList.remove('hidden');
+                targetSection.classList.add('active');
+            }, 300); // Задержка для завершения анимации скрытия
             
-            // Особые действия для разных разделов
             if (sectionId === 'prayer-generator') {
                 showRandomNeeds();
-                prayerText.textContent = 'Нажмите "Сгенерировать молитву", чтобы создать молитву на основе выбранных нужд.';
+                prayerText.textContent = 'Нажмите "Сгенерировать молитву", чтобы создать молитву на основе этих нужд.';
                 currentPrayer = null;
+                savePrayerBtn.style.display = 'none';
             } else if (sectionId === 'add-need') {
                 needText.value = '';
                 newCategory.value = '';
-                selectCategory('Прочее');
+                selectCategory('Другие');
+                needText.dataset.editId = '';
+            } else if (sectionId === 'chats-list') {
+                renderChatsList();
             }
         }
         
-        // Функция для отображения нужд
-        function renderNeeds() {
-            needsList.innerHTML = '';
+        // Функция для отображения списка чатов (категорий)
+        function renderChatsList() {
+            chatList.innerHTML = '';
             
-            if (needs.length === 0) {
-                needsList.innerHTML = '<div class="message ai">У вас пока нет молитвенных нужд. Добавьте первую!</div>';
-                return;
-            }
-            
-            // Фильтруем нужды по категории "Прочее" для главного чата
-            const otherNeeds = needs.filter(need => need.category === 'Прочее');
-            
-            if (otherNeeds.length === 0) {
-                needsList.innerHTML = '<div class="message ai">В категории "Прочее" пока нет нужд.</div>';
-                return;
-            }
-            
-            otherNeeds.forEach((need, index) => {
-                const needItem = document.createElement('li');
-                needItem.className = 'need-item';
-                needItem.innerHTML = `
-                    <div class="need-content">
-                        ${need.text}
-                        <div class="need-category">${need.category}</div>
+            categories.forEach(category => {
+                const categoryNeeds = needs.filter(need => need.category === category);
+                const lastNeed = categoryNeeds[categoryNeeds.length - 1];
+                const unansweredCount = categoryNeeds.filter(n => !n.answered).length;
+                
+                const chatItem = document.createElement('li');
+                chatItem.className = 'chat-item';
+                chatItem.dataset.category = category;
+                chatItem.innerHTML = `
+                    <div class="chat-avatar">
+                        <i class="fas ${getCategoryIcon(category)}"></i>
                     </div>
-                    <div class="need-actions">
-                        <button class="need-action edit-need" data-id="${need.id}">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="need-action delete-need" data-id="${need.id}">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                    <div class="chat-info">
+                        <div class="chat-name">${category}</div>
+                        <div class="chat-preview">${unansweredCount} активных нужд из ${categoryNeeds.length}</div>
                     </div>
+                    ${lastNeed ? `<div class="chat-time">${formatTime(lastNeed.date)}</div>` : ''}
                 `;
-                needsList.appendChild(needItem);
                 
-                // Обработчики для кнопок редактирования и удаления
-                needItem.querySelector('.edit-need').addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    editNeed(need.id);
+                chatItem.addEventListener('click', () => {
+                    openChat(category);
                 });
                 
-                needItem.querySelector('.delete-need').addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    deleteNeed(need.id);
-                });
+                chatList.appendChild(chatItem);
             });
         }
         
-        // Функция для редактирования нужды
-        function editNeed(id) {
+        // Функция для получения иконки категории
+        function getCategoryIcon(category) {
+            const icons = {
+                'Здоровье': 'fa-heartbeat',
+                'Семья': 'fa-users',
+                'Финансы': 'fa-money-bill-wave',
+                'Духовный рост': 'fa-bible',
+                'Работа': 'fa-briefcase',
+                'Отношения': 'fa-handshake',
+                'Другие': 'fa-folder'
+            };
+            return icons[category] || 'fa-folder';
+        }
+        
+        // Функция для открытия чата (категории)
+        function openChat(category) {
+            currentChat = category;
+            chatTitle.textContent = category;
+            
+            chatMessages.innerHTML = '';
+            
+            const categoryNeeds = needs.filter(need => need.category === category);
+            
+            if (categoryNeeds.length === 0) {
+                chatMessages.innerHTML = `
+                    <div class="message">
+                        В этой категории пока нет молитвенных нужд. Добавьте первую!
+                        <div class="message-time">${formatTime(new Date().toISOString())}</div>
+                    </div>
+                `;
+            } else {
+                categoryNeeds.forEach((need, index) => {
+                    const messageElement = document.createElement('div');
+                    messageElement.className = `message ${need.answered ? 'answered' : ''}`;
+                    messageElement.style.animationDelay = `${index * 0.05}s`;
+                    messageElement.innerHTML = `
+                        ${need.text}
+                        <div class="message-time">${formatTime(need.date)}</div>
+                        <div class="message-actions">
+                            <button class="message-action edit-btn" data-id="${need.id}">
+                                <i class="fas fa-edit"></i> Редактировать
+                            </button>
+                            <button class="message-action delete-btn" data-id="${need.id}">
+                                <i class="fas fa-trash"></i> Удалить
+                            </button>
+                            <button class="message-action answer-btn" data-id="${need.id}" data-answered="${need.answered}">
+                                <i class="fas fa-check"></i> ${need.answered ? 'Вернуть' : 'Отметить отвеченной'}
+                            </button>
+                        </div>
+                    `;
+                    
+                    messageElement.querySelector('.edit-btn').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        editNeed(need.id);
+                    });
+                    
+                    messageElement.querySelector('.delete-btn').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        deleteNeed(need.id);
+                    });
+                    
+                    messageElement.querySelector('.answer-btn').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        toggleAnswered(need.id);
+                    });
+                    
+                    chatMessages.appendChild(messageElement);
+                });
+            }
+            
+            switchSection('chat-window');
+            
+            setTimeout(() => {
+                chatMessages.scrollTo({
+                    top: chatMessages.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }, 100);
+        }
+        
+        // Функция для переключения статуса отвеченной нужды
+        function toggleAnswered(id) {
             const need = needs.find(n => n.id === id);
             if (need) {
-                needText.value = need.text;
-                selectCategory(need.category);
-                switchSection('add-need');
+                need.answered = !need.answered;
+                localStorage.setItem('prayerNeeds', JSON.stringify(needs));
+                openChat(currentChat);
+                renderChatsList();
             }
         }
         
-        // Функция для удаления нужды
-        function deleteNeed(id) {
-            if (confirm('Вы уверены, что хотите удалить эту нужду?')) {
-                needs = needs.filter(n => n.id !== id);
-                localStorage.setItem('prayerNeeds', JSON.stringify(needs));
-                renderNeeds();
-            }
+        // Функция для форматирования времени
+        function formatTime(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diff = now - date;
+            const minutes = Math.floor(diff / (1000 * 60));
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+            
+            if (minutes < 1) return 'Только что';
+            if (minutes < 60) return `${minutes} мин. назад`;
+            if (hours < 24) return `${hours} ч. назад`;
+            if (days === 1) return 'Вчера';
+            if (days < 7) return `${days} дн. назад`;
+            return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
         }
         
         // Функция для отображения кнопок категорий
@@ -1106,43 +1405,31 @@
             selectedCategory = category;
             newCategory.value = '';
             
-            // Обновляем активную кнопку
             document.querySelectorAll('.category-btn').forEach(btn => {
-                if (btn.textContent === category) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
+                btn.classList.toggle('active', btn.textContent === category);
             });
         }
         
-        // Функция для показа случайных нужд
+        // Функция для показа 5 случайных нужд
         function showRandomNeeds() {
             randomNeeds.innerHTML = '';
+            randomPrayerNeeds = [];
             
             if (needs.length === 0) {
-                randomNeeds.innerHTML = '<div class="message ai">У вас пока нет молитвенных нужд. Добавьте первую!</div>';
+                randomNeeds.innerHTML = '<div class="message">У вас пока нет молитвенных нужд. Добавьте первую!</div>';
                 return;
             }
             
-            // Выбираем 5 случайных нужд (или меньше, если нужд меньше 5)
-            const randomIndexes = [];
-            const count = Math.min(5, needs.length);
+            const shuffled = [...needs].sort(() => 0.5 - Math.random());
+            randomPrayerNeeds = shuffled.slice(0, Math.min(5, needs.length));
             
-            while (randomIndexes.length < count) {
-                const randomIndex = Math.floor(Math.random() * needs.length);
-                if (!randomIndexes.includes(randomIndex)) {
-                    randomIndexes.push(randomIndex);
-                }
-            }
-            
-            randomIndexes.forEach(index => {
-                const need = needs[index];
+            randomPrayerNeeds.forEach((need, index) => {
                 const needElement = document.createElement('div');
-                needElement.className = 'message ai';
+                needElement.className = 'message';
+                needElement.style.animationDelay = `${index * 0.05}s`;
                 needElement.innerHTML = `
                     ${need.text}
-                    <div class="need-category">${need.category}</div>
+                    <span class="need-category">(${need.category})</span>
                 `;
                 randomNeeds.appendChild(needElement);
             });
@@ -1150,22 +1437,16 @@
         
         // Функция для генерации молитвы с помощью Together AI
         async function generatePrayer() {
-            if (needs.length === 0) {
-                alert('Сначала добавьте молитвенные нужды!');
+            if (randomPrayerNeeds.length === 0) {
+                alert('Добавьте нужды для генерации молитвы!');
                 return;
             }
             
-            prayerText.innerHTML = '<div class="loader"></div> Генерация молитвы на русском...';
+            prayerText.innerHTML = '<div class="loader"></div> Генерация молитвы...';
             
             try {
-                // Формируем промпт для ИИ
-                const selectedNeeds = needs.filter((_, index) => 
-                    Array.from(randomNeeds.children).some(child => 
-                        child.textContent.includes(needs[index].text)
-                    )
-                );
-                
-                const prompt = `Создай искреннюю христианскую молитву на русском языке на основе этих молитвенных нужд: ${selectedNeeds.map(n => n.text).join(', ')}. Молитва должна быть духовной, ободряющей и соответствовать православной традиции.`;
+                const needsText = randomPrayerNeeds.map(n => n.text).join(', ');
+                const prompt = `Создай искреннюю, духовную христианскую молитву на русском языке на основе этих молитвенных нужд: ${needsText}. Молитва должна быть ободряющей, соответствовать библейским принципам и православной традиции. Добавь элементы благодарности и веры.`;
                 
                 const response = await fetch(TOGETHER_API_URL, {
                     method: 'POST',
@@ -1181,7 +1462,7 @@
                                 content: prompt
                             }
                         ],
-                        max_tokens: 500,
+                        max_tokens: 600,
                         temperature: 0.7
                     })
                 });
@@ -1189,15 +1470,42 @@
                 const data = await response.json();
                 
                 if (data.choices && data.choices.length > 0) {
-                    currentPrayer = data.choices[0].message.content;
+                    currentPrayer = data.choices[0].message.content.trim();
                     prayerText.textContent = currentPrayer;
+                    savePrayerBtn.style.display = 'inline-block';
                 } else {
                     prayerText.textContent = "Не удалось сгенерировать молитву. Попробуйте еще раз.";
                 }
             } catch (error) {
-                console.error('Ошибка при генерации молитвы:', error);
-                prayerText.textContent = "Произошла ошибка при генерации молитвы. Проверьте подключение к интернету.";
+                console.error('Ошибка:', error);
+                prayerText.textContent = "Произошла ошибка. Проверьте интернет.";
             }
+        }
+        
+        // Функция для сохранения молитвы
+        function savePrayer() {
+            if (!currentPrayer) return;
+            
+            const prayerNeed = {
+                id: Date.now().toString(),
+                text: currentPrayer,
+                category: 'Молитвы',
+                date: new Date().toISOString(),
+                answered: false
+            };
+            
+            if (!categories.includes('Молитвы')) {
+                categories.push('Молитвы');
+                localStorage.setItem('prayerCategories', JSON.stringify(categories));
+                renderCategoryButtons();
+            }
+            
+            needs.push(prayerNeed);
+            localStorage.setItem('prayerNeeds', JSON.stringify(needs));
+            
+            alert('Молитва сохранена в категории "Молитвы"!');
+            savePrayerBtn.style.display = 'none';
+            renderChatsList();
         }
         
         // Функция для сохранения нужды
@@ -1205,33 +1513,33 @@
             const text = needText.value.trim();
             let category = selectedCategory;
             
-            // Если введена новая категория
             if (newCategory.value.trim() !== '') {
                 category = newCategory.value.trim();
-                
-                // Добавляем новую категорию если её еще нет
                 if (!categories.includes(category)) {
                     categories.push(category);
                     localStorage.setItem('prayerCategories', JSON.stringify(categories));
                     renderCategoryButtons();
+                    renderChatsList();
                 }
             }
             
             if (text === '') {
-                alert('Пожалуйста, введите молитвенную нужду');
+                alert('Введите текст молитвенной нужды!');
+                needText.focus();
                 return;
             }
             
-            // Создаем новую нужду
+            const id = needText.dataset.editId || Date.now().toString();
+            const existingIndex = needs.findIndex(n => n.id === id);
+            
             const newNeed = {
-                id: Date.now().toString(),
+                id: id,
                 text: text,
                 category: category,
-                date: new Date().toISOString()
+                date: new Date().toISOString(),
+                answered: existingIndex !== -1 ? needs[existingIndex].answered : false
             };
             
-            // Добавляем или обновляем нужду
-            const existingIndex = needs.findIndex(n => n.text === text);
             if (existingIndex !== -1) {
                 needs[existingIndex] = newNeed;
             } else {
@@ -1240,14 +1548,34 @@
             
             localStorage.setItem('prayerNeeds', JSON.stringify(needs));
             
-            alert('Нужда успешно сохранена!');
-            switchSection('main-chat');
-            renderNeeds();
+            alert('Нужда сохранена!');
+            switchSection('chats-list');
+        }
+        
+        // Функция для редактирования нужды
+        function editNeed(id) {
+            const need = needs.find(n => n.id === id);
+            if (need) {
+                needText.value = need.text;
+                selectCategory(need.category);
+                switchSection('add-need');
+                needText.dataset.editId = id;
+            }
+        }
+        
+        // Функция для удаления нужды
+        function deleteNeed(id) {
+            if (confirm('Удалить эту нужду?')) {
+                needs = needs.filter(n => n.id !== id);
+                localStorage.setItem('prayerNeeds', JSON.stringify(needs));
+                if (currentChat) openChat(currentChat);
+                renderChatsList();
+            }
         }
         
         // Функция для обновления размера шрифта
         function updateFontSize(size) {
-            document.body.style.fontSize = `${size}px`;
+            document.documentElement.style.setProperty('--font-size-base', `${size}px`);
             fontSizeValue.textContent = size;
             localStorage.setItem('fontSize', size);
         }
@@ -1258,16 +1586,22 @@
             if (savedColor) {
                 document.body.style.background = savedColor;
                 document.body.style.backgroundImage = 'none';
-                
-                // Активируем соответствующую кнопку цвета
                 colorOptions.forEach(option => {
-                    if (option.getAttribute('data-color') === savedColor) {
-                        option.classList.add('active');
-                    } else {
-                        option.classList.remove('active');
-                    }
+                    option.classList.toggle('active', option.dataset.color === savedColor);
                 });
             }
+        }
+        
+        // Функция для темной темы
+        function toggleDarkMode(isDark) {
+            document.body.classList.toggle('dark-mode', isDark);
+            localStorage.setItem('darkMode', isDark);
+        }
+        
+        function loadDarkMode() {
+            const isDark = localStorage.getItem('darkMode') === 'true';
+            darkModeToggle.checked = isDark;
+            toggleDarkMode(isDark);
         }
         
         // Обработчики событий
@@ -1276,24 +1610,14 @@
         
         menuItems.forEach(item => {
             item.addEventListener('click', () => {
-                const target = item.getAttribute('data-target');
+                const target = item.dataset.target;
                 switchSection(target);
                 toggleMenu();
             });
         });
         
-        backButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const target = button.getAttribute('data-target');
-                switchSection(target);
-            });
-        });
-        
-        cancelButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const target = button.getAttribute('data-target');
-                switchSection(target);
-            });
+        backToChats.addEventListener('click', () => {
+            switchSection('chats-list');
         });
         
         addNeedBtn.addEventListener('click', () => {
@@ -1305,22 +1629,24 @@
         });
         
         generatePrayerBtn.addEventListener('click', generatePrayer);
+        savePrayerBtn.addEventListener('click', savePrayer);
         
         deletePrayerBtn.addEventListener('click', () => {
-            prayerText.textContent = 'Нажмите "Сгенерировать молитву", чтобы создать молитву на основе выбранных нужд.';
+            prayerText.textContent = 'Нажмите "Сгенерировать молитву", чтобы создать молитву на основе этих нужд.';
             currentPrayer = null;
+            savePrayerBtn.style.display = 'none';
+            showRandomNeeds();
         });
         
         submitNeed.addEventListener('click', saveNeed);
         
         colorOptions.forEach(option => {
             option.addEventListener('click', () => {
-                const color = option.getAttribute('data-color');
+                const color = option.dataset.color;
                 document.body.style.background = color;
                 document.body.style.backgroundImage = 'none';
                 localStorage.setItem('backgroundColor', color);
                 localStorage.removeItem('customBackground');
-                
                 colorOptions.forEach(opt => opt.classList.remove('active'));
                 option.classList.add('active');
             });
@@ -1328,62 +1654,60 @@
         
         fontIncrease.addEventListener('click', () => {
             if (currentFontSize < 24) {
-                currentFontSize += 2;
+                currentFontSize += 1;
                 updateFontSize(currentFontSize);
             }
         });
         
         fontDecrease.addEventListener('click', () => {
             if (currentFontSize > 12) {
-                currentFontSize -= 2;
+                currentFontSize -= 1;
                 updateFontSize(currentFontSize);
             }
         });
         
         resetDataBtn.addEventListener('click', () => {
-            if (confirm('Вы уверены, что хотите удалить все данные? Это действие нельзя отменить.')) {
-                localStorage.removeItem('prayerNeeds');
-                localStorage.removeItem('prayerCategories');
-                localStorage.removeItem('savedPrayers');
-                localStorage.removeItem('customBackground');
+            if (confirm('Удалить все данные? Это нельзя отменить.')) {
+                localStorage.clear();
                 needs = [];
-                categories = ['Прочее'];
-                renderNeeds();
-                renderCategoryButtons();
+                categories = ['Здоровье', 'Семья', 'Финансы', 'Духовный рост', 'Работа', 'Отношения', 'Другие'];
+                currentFontSize = 16;
+                updateFontSize(16);
+                toggleDarkMode(false);
                 document.body.style.background = '#F5F5DC';
                 document.body.style.backgroundImage = 'none';
-                alert('Все данные были удалены.');
+                renderChatsList();
+                renderCategoryButtons();
+                alert('Данные сброшены.');
             }
         });
         
-        // Загрузка фона из галереи
-        bgUploadBtn.addEventListener('click', () => {
-            bgUpload.click();
-        });
+        bgUploadBtn.addEventListener('click', () => bgUpload.click());
         
         bgUpload.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = (e) => {
-                    document.body.style.backgroundImage = `url(${e.target.result})`;
-                    document.body.style.backgroundSize = 'cover';
-                    document.body.style.backgroundPosition = 'center';
-                    localStorage.setItem('customBackground', e.target.result);
+                reader.onload = (ev) => {
+                    document.body.style.backgroundImage = `url(${ev.target.result})`;
+                    localStorage.setItem('customBackground', ev.target.result);
                     localStorage.removeItem('backgroundColor');
-                    
-                    // Сбрасываем активные цветовые кнопки
                     colorOptions.forEach(opt => opt.classList.remove('active'));
                 };
                 reader.readAsDataURL(file);
             }
         });
         
-        // Инициализация категорий (если их нет)
-        if (!localStorage.getItem('prayerCategories')) {
-            localStorage.setItem('prayerCategories', JSON.stringify(categories));
-        }
+        darkModeToggle.addEventListener('change', (e) => {
+            toggleDarkMode(e.target.checked);
+        });
+        
+        // Закрытие меню при скролле вне его
+        document.addEventListener('touchstart', (e) => {
+            if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && !burgerBtn.contains(e.target)) {
+                toggleMenu();
+            }
+        });
     </script>
 </body>
 </html>
-
