@@ -51,7 +51,6 @@
             color: var(--text-color);
         }
         
-        /* Header стили */
         header {
             height: 60px;
             padding: 10px 15px;
@@ -90,12 +89,12 @@
             height: 2px;
             background-color: var(--text-color);
             margin: 4px 0;
-            transition: 0.2s;
+            transition: transform 0.2s ease, opacity 0.2s ease;
             border-radius: 2px;
         }
         
         .burger-btn.active .burger-line:nth-child(1) {
-            transform: translateY(6px) rotate(45deg);
+            transform: translateY(10px) rotate(45deg);
         }
         
         .burger-btn.active .burger-line:nth-child(2) {
@@ -103,7 +102,7 @@
         }
         
         .burger-btn.active .burger-line:nth-child(3) {
-            transform: translateY(-15px) rotate(-40deg);
+            transform: translateY(-10px) rotate(-45deg);
         }
         
         .app-title {
@@ -112,7 +111,6 @@
             color: var(--primary-color);
         }
         
-        /* Боковое меню */
         .sidebar {
             position: fixed;
             top: 0;
@@ -178,7 +176,6 @@
             font-size: 16px;
         }
         
-        /* Основной контент */
         .content {
             padding: 20px;
             max-width: 100%;
@@ -188,7 +185,6 @@
             position: relative;
         }
         
-        /* Стили для списка чатов */
         .chats-container {
             background: var(--chat-bg);
             border-radius: 12px;
@@ -295,7 +291,6 @@
             flex-shrink: 0;
         }
         
-        /* Стили для самого чата */
         .chat-window {
             background: var(--chat-bg);
             border-radius: 12px;
@@ -320,7 +315,7 @@
         .chat-header {
             display: flex;
             align-items: center;
-            padding: 10px 0px 10px 0px;
+            padding: 10px;
             border-bottom: 1px solid var(--chat-border);
             background: var(--chat-bg);
         }
@@ -436,7 +431,6 @@
             background: rgba(76, 175, 80, 0.2);
         }
         
-        /* Стили для добавления нужды */
         .add-need-form {
             background: var(--chat-bg);
             border-radius: 12px;
@@ -463,7 +457,7 @@
         
         .form-label {
             display: block;
-            margin: 10px 0px 10px 0px;
+            margin: 10px 0;
             font-weight: 600;
             color: var(--primary-color);
         }
@@ -499,7 +493,7 @@
         }
         
         .category-btn {
-            padding: 8px 15px 8px 15px;
+            padding: 8px 15px;
             background: rgba(139, 69, 19, 0.1);
             border: none;
             border-radius: 20px;
@@ -566,7 +560,6 @@
             background: var(--dark-color);
         }
         
-        /* Стили для молитвенного раздела */
         .prayer-section {
             background: var(--chat-bg);
             border-radius: 12px;
@@ -590,7 +583,7 @@
         .prayer-title {
             font-size: 20px;
             color: var(--primary-color);
-            margin: 15px 0px 15px 0px;
+            margin: 15px 0;
         }
         
         .prayer-text {
@@ -644,6 +637,15 @@
             background: #3d8b40;
         }
         
+        .share-btn {
+            background: var(--accent-color);
+            color: var(--dark-color);
+        }
+        
+        .share-btn:hover {
+            background: #FFC107;
+        }
+        
         .delete-btn {
             background: var(--danger-color);
             color: white;
@@ -653,7 +655,6 @@
             background: #d32f2f;
         }
         
-        /* Стили для настроек */
         .settings-panel {
             background: var(--chat-bg);
             border-radius: 12px;
@@ -828,7 +829,6 @@
             transform: translateX(26px);
         }
         
-        /* Плавающие кнопки */
         .floating-buttons {
             position: fixed;
             bottom: 20px;
@@ -861,7 +861,6 @@
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
         }
         
-        /* Адаптивность */
         @media (max-width: 768px) {
             .content {
                 padding: 15px;
@@ -882,7 +881,6 @@
             }
         }
         
-        /* Анимация загрузки */
         .loader {
             display: inline-block;
             width: 20px;
@@ -897,7 +895,6 @@
             to { transform: rotate(360deg); }
         }
         
-        /* Красивые скроллбары */
         ::-webkit-scrollbar {
             width: 6px;
         }
@@ -915,7 +912,6 @@
             background: var(--primary-color);
         }
         
-        /* Улучшенные декоративные элементы */
         .decoration {
             position: fixed;
             pointer-events: none;
@@ -943,14 +939,34 @@
             color: var(--muted-color);
             margin-top: 5px;
         }
+        
+        .mic-btn {
+            background: var(--accent-color);
+            color: var(--dark-color);
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .mic-btn:hover {
+            background: #FFC107;
+        }
+        
+        .mic-btn.active {
+            background: var(--danger-color);
+            color: white;
+        }
     </style>
 </head>
 <body>
-    <!-- Декоративные элементы -->
     <div class="decoration cross">✝</div>
     <div class="decoration dove">🕊</div>
     
-    <!-- Шапка -->
     <header>
         <div class="header-left">
             <button class="burger-btn" id="burgerBtn" aria-label="Открыть меню" aria-expanded="false">
@@ -962,42 +978,32 @@
         </div>
     </header>
     
-    <!-- Боковое меню -->
     <div class="sidebar" id="sidebar">
         <div class="menu-item" data-target="chats-list" aria-label="Главная">
             <div class="menu-icon"><i class="fas fa-home"></i></div>
             <div class="menu-text">Главная</div>
         </div>
-        
         <div class="menu-item" data-target="add-need" aria-label="Добавить нужду">
             <div class="menu-icon"><i class="fas fa-plus-circle"></i></div>
             <div class="menu-text">Добавить нужду</div>
         </div>
-        
         <div class="menu-item" data-target="prayer-generator" aria-label="Помолиться за нужду">
             <div class="menu-icon"><i class="fas fa-pray"></i></div>
             <div class="menu-text">Помолиться за нужду</div>
         </div>
-        
         <div class="menu-item" data-target="settings" aria-label="Настройки">
             <div class="menu-icon"><i class="fas fa-cog"></i></div>
             <div class="menu-text">Настройки</div>
         </div>
     </div>
     
-    <!-- Затемнение фона -->
     <div class="overlay" id="overlay" aria-hidden="true"></div>
     
-    <!-- Основной контент -->
     <div class="content" id="content">
-        <!-- Список чатов (категорий) -->
         <div class="chats-container active" id="chats-list">
-            <ul class="chat-list" id="chat-list">
-                <!-- Чаты будут добавляться здесь динамически -->
-            </ul>
+            <ul class="chat-list" id="chat-list"></ul>
         </div>
         
-        <!-- Окно чата -->
         <div class="chat-window" id="chat-window">
             <div class="chat-header">
                 <button class="back-btn" id="backToChats" aria-label="Назад к списку">
@@ -1005,12 +1011,9 @@
                 </button>
                 <h2 class="chat-title" id="chat-title">Категория</h2>
             </div>
-            <div class="chat-messages" id="chat-messages">
-                <!-- Сообщения будут добавляться здесь динамически -->
-            </div>
+            <div class="chat-messages" id="chat-messages"></div>
         </div>
         
-        <!-- Форма добавления нужды -->
         <div class="add-need-form" id="add-need">
             <div class="chat-header">
                 <button class="back-btn" data-target="chats-list" aria-label="Назад">
@@ -1018,27 +1021,22 @@
                 </button>
                 <h2 class="chat-title">Добавить нужду</h2>
             </div>
-            
             <div class="form-group">
                 <label class="form-label" for="need-text">Молитвенная нужда</label>
                 <textarea class="form-textarea" id="need-text" placeholder="Опишите вашу молитвенную нужду..." aria-required="true"></textarea>
+                <button class="mic-btn" id="mic-btn"><i class="fas fa-microphone"></i> Голосовой ввод</button>
             </div>
-            
             <div class="form-group">
                 <label class="form-label">Выберите категорию</label>
-                <div class="category-buttons" id="category-buttons">
-                    <!-- Кнопки категорий будут добавляться здесь -->
-                </div>
+                <div class="category-buttons" id="category-buttons"></div>
                 <input type="text" class="form-input" id="new-category" placeholder="Или введите новую категорию" aria-label="Новая категория">
             </div>
-            
             <div class="form-actions">
                 <button class="form-btn cancel-btn" data-target="chats-list">Отмена</button>
                 <button class="form-btn submit-btn" id="submit-need">Сохранить</button>
             </div>
         </div>
         
-        <!-- Генератор молитв -->
         <div class="prayer-section" id="prayer-generator">
             <div class="chat-header">
                 <button class="back-btn" data-target="chats-list" aria-label="Назад">
@@ -1046,17 +1044,11 @@
                 </button>
                 <h2 class="chat-title">Помолиться за нужду</h2>
             </div>
-            
             <h3 class="prayer-title">Случайные нужды для молитвы</h3>
-            
-            <div id="random-needs">
-                <!-- 5 случайных нужд будут добавляться здесь -->
-            </div>
-            
+            <div id="random-needs"></div>
             <div class="prayer-text" id="prayer-text">
                 Нажмите "Сгенерировать молитву", чтобы создать молитву на основе этих нужд.
             </div>
-            
             <div class="prayer-actions">
                 <button class="prayer-btn generate-btn" id="generate-prayer">
                     <i class="fas fa-wand-magic-sparkles"></i> Сгенерировать молитву
@@ -1064,13 +1056,15 @@
                 <button class="prayer-btn save-btn" id="save-prayer" style="display: none;">
                     <i class="fas fa-save"></i> Сохранить молитву
                 </button>
+                <button class="prayer-btn share-btn" id="share-prayer" style="display: none;">
+                    <i class="fas fa-share"></i> Поделиться
+                </button>
                 <button class="prayer-btn delete-btn" id="delete-prayer">
                     <i class="fas fa-trash"></i> Очистить
                 </button>
             </div>
         </div>
         
-        <!-- Настройки -->
         <div class="settings-panel" id="settings">
             <div class="chat-header">
                 <button class="back-btn" data-target="chats-list" aria-label="Назад">
@@ -1078,7 +1072,6 @@
                 </button>
                 <h2 class="chat-title">Настройки</h2>
             </div>
-            
             <div class="settings-item">
                 <div class="settings-text">Цвет фона</div>
                 <div class="color-picker">
@@ -1089,7 +1082,6 @@
                     <div class="color-option" style="background: #FFF8E1;" data-color="#FFF8E1"></div>
                 </div>
             </div>
-            
             <div class="settings-item">
                 <div class="settings-text">Свой фон из галереи</div>
                 <div class="custom-bg-upload">
@@ -1099,7 +1091,6 @@
                     </button>
                 </div>
             </div>
-            
             <div class="settings-item">
                 <div class="settings-text">Размер текста</div>
                 <div class="font-size-control">
@@ -1108,7 +1099,6 @@
                     <button class="font-size-btn" id="font-increase" aria-label="Увеличить шрифт">+</button>
                 </div>
             </div>
-            
             <div class="settings-item">
                 <div class="settings-text">Темная тема</div>
                 <div class="toggle-switch">
@@ -1118,7 +1108,6 @@
                     </label>
                 </div>
             </div>
-            
             <div class="settings-item">
                 <div class="settings-text">Сбросить все данные</div>
                 <button class="prayer-btn delete-btn" id="reset-data">
@@ -1128,7 +1117,6 @@
         </div>
     </div>
     
-    <!-- Плавающие кнопки -->
     <div class="floating-buttons">
         <button class="floating-btn" id="addNeedBtn" title="Добавить нужду" aria-label="Добавить нужду">
             <i class="fas fa-plus"></i>
@@ -1139,11 +1127,9 @@
     </div>
     
     <script>
-        // Токен Together AI
         const TOGETHER_API_TOKEN = "2165ec5065898c6227d7f541961c1f1071a59fb437f7994baa7310153fa17c0b";
         const TOGETHER_API_URL = "https://api.together.xyz/v1/chat/completions";
         
-        // Получаем элементы DOM
         const burgerBtn = document.getElementById('burgerBtn');
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');
@@ -1159,6 +1145,7 @@
         const randomNeeds = document.getElementById('random-needs');
         const generatePrayerBtn = document.getElementById('generate-prayer');
         const savePrayerBtn = document.getElementById('save-prayer');
+        const sharePrayerBtn = document.getElementById('share-prayer');
         const prayerText = document.getElementById('prayer-text');
         const deletePrayerBtn = document.getElementById('delete-prayer');
         const colorOptions = document.querySelectorAll('.color-option');
@@ -1173,8 +1160,8 @@
         const bgUpload = document.getElementById('bg-upload');
         const bgUploadBtn = document.getElementById('bg-upload-btn');
         const darkModeToggle = document.getElementById('dark-mode-toggle');
+        const micBtn = document.getElementById('mic-btn');
         
-        // Данные приложения
         let needs = JSON.parse(localStorage.getItem('prayerNeeds')) || [];
         let categories = JSON.parse(localStorage.getItem('prayerCategories')) || ['Здоровье', 'Семья', 'Финансы', 'Духовный рост', 'Работа', 'Отношения', 'Другие'];
         let currentFontSize = parseInt(localStorage.getItem('fontSize')) || 16;
@@ -1183,7 +1170,6 @@
         let currentChat = null;
         let randomPrayerNeeds = [];
         
-        // Инициализация
         document.addEventListener('DOMContentLoaded', () => {
             updateFontSize(currentFontSize);
             renderChatsList();
@@ -1201,52 +1187,47 @@
             }
         });
         
-        // Функция для открытия/закрытия меню
         function toggleMenu() {
             burgerBtn.classList.toggle('active');
             sidebar.classList.toggle('open');
             overlay.classList.toggle('open');
-            
             const isExpanded = burgerBtn.getAttribute('aria-expanded') === 'true';
             burgerBtn.setAttribute('aria-expanded', !isExpanded);
         }
         
-        // Функция для переключения между разделами
         function switchSection(sectionId) {
             const sections = document.querySelectorAll('.chats-container, .chat-window, .add-need-form, .prayer-section, .settings-panel');
             const targetSection = document.getElementById(sectionId);
             
-            // Скрываем все секции
             sections.forEach(section => {
                 section.classList.add('hidden');
                 section.classList.remove('active');
             });
             
-            // Показываем целевую секцию
             setTimeout(() => {
                 targetSection.classList.remove('hidden');
                 targetSection.classList.add('active');
-            }, 300); // Задержка для завершения анимации скрытия
+            }, 300);
             
             if (sectionId === 'prayer-generator') {
                 showRandomNeeds();
                 prayerText.textContent = 'Нажмите "Сгенерировать молитву", чтобы создать молитву на основе этих нужд.';
                 currentPrayer = null;
                 savePrayerBtn.style.display = 'none';
+                sharePrayerBtn.style.display = 'none';
             } else if (sectionId === 'add-need') {
                 needText.value = '';
                 newCategory.value = '';
                 selectCategory('Другие');
                 needText.dataset.editId = '';
+                micBtn.classList.remove('active');
             } else if (sectionId === 'chats-list') {
                 renderChatsList();
             }
         }
         
-        // Функция для отображения списка чатов (категорий)
         function renderChatsList() {
             chatList.innerHTML = '';
-            
             categories.forEach(category => {
                 const categoryNeeds = needs.filter(need => need.category === category);
                 const lastNeed = categoryNeeds[categoryNeeds.length - 1];
@@ -1265,16 +1246,11 @@
                     </div>
                     ${lastNeed ? `<div class="chat-time">${formatTime(lastNeed.date)}</div>` : ''}
                 `;
-                
-                chatItem.addEventListener('click', () => {
-                    openChat(category);
-                });
-                
+                chatItem.addEventListener('click', () => openChat(category));
                 chatList.appendChild(chatItem);
             });
         }
         
-        // Функция для получения иконки категории
         function getCategoryIcon(category) {
             const icons = {
                 'Здоровье': 'fa-heartbeat',
@@ -1288,13 +1264,10 @@
             return icons[category] || 'fa-folder';
         }
         
-        // Функция для открытия чата (категории)
         function openChat(category) {
             currentChat = category;
             chatTitle.textContent = category;
-            
             chatMessages.innerHTML = '';
-            
             const categoryNeeds = needs.filter(need => need.category === category);
             
             if (categoryNeeds.length === 0) {
@@ -1324,28 +1297,23 @@
                             </button>
                         </div>
                     `;
-                    
                     messageElement.querySelector('.edit-btn').addEventListener('click', (e) => {
                         e.stopPropagation();
                         editNeed(need.id);
                     });
-                    
                     messageElement.querySelector('.delete-btn').addEventListener('click', (e) => {
                         e.stopPropagation();
                         deleteNeed(need.id);
                     });
-                    
                     messageElement.querySelector('.answer-btn').addEventListener('click', (e) => {
                         e.stopPropagation();
                         toggleAnswered(need.id);
                     });
-                    
                     chatMessages.appendChild(messageElement);
                 });
             }
             
             switchSection('chat-window');
-            
             setTimeout(() => {
                 chatMessages.scrollTo({
                     top: chatMessages.scrollHeight,
@@ -1354,7 +1322,6 @@
             }, 100);
         }
         
-        // Функция для переключения статуса отвеченной нужды
         function toggleAnswered(id) {
             const need = needs.find(n => n.id === id);
             if (need) {
@@ -1365,7 +1332,6 @@
             }
         }
         
-        // Функция для форматирования времени
         function formatTime(dateString) {
             const date = new Date(dateString);
             const now = new Date();
@@ -1382,10 +1348,8 @@
             return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
         }
         
-        // Функция для отображения кнопок категорий
         function renderCategoryButtons() {
             categoryButtons.innerHTML = '';
-            
             categories.forEach(category => {
                 const button = document.createElement('button');
                 button.className = 'category-btn';
@@ -1393,36 +1357,28 @@
                 if (category === selectedCategory) {
                     button.classList.add('active');
                 }
-                button.addEventListener('click', () => {
-                    selectCategory(category);
-                });
+                button.addEventListener('click', () => selectCategory(category));
                 categoryButtons.appendChild(button);
             });
         }
         
-        // Функция для выбора категории
         function selectCategory(category) {
             selectedCategory = category;
             newCategory.value = '';
-            
             document.querySelectorAll('.category-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.textContent === category);
             });
         }
         
-        // Функция для показа 5 случайных нужд
         function showRandomNeeds() {
             randomNeeds.innerHTML = '';
             randomPrayerNeeds = [];
-            
             if (needs.length === 0) {
                 randomNeeds.innerHTML = '<div class="message">У вас пока нет молитвенных нужд. Добавьте первую!</div>';
                 return;
             }
-            
             const shuffled = [...needs].sort(() => 0.5 - Math.random());
             randomPrayerNeeds = shuffled.slice(0, Math.min(5, needs.length));
-            
             randomPrayerNeeds.forEach((need, index) => {
                 const needElement = document.createElement('div');
                 needElement.className = 'message';
@@ -1435,19 +1391,15 @@
             });
         }
         
-        // Функция для генерации молитвы с помощью Together AI
         async function generatePrayer() {
             if (randomPrayerNeeds.length === 0) {
                 alert('Добавьте нужды для генерации молитвы!');
                 return;
             }
-            
             prayerText.innerHTML = '<div class="loader"></div> Генерация молитвы...';
-            
             try {
                 const needsText = randomPrayerNeeds.map(n => n.text).join(', ');
                 const prompt = `Создай искреннюю, духовную христианскую молитву на русском языке на основе этих молитвенных нужд: ${needsText}. Молитва должна быть ободряющей, соответствовать библейским принципам и православной традиции. Добавь элементы благодарности и веры.`;
-                
                 const response = await fetch(TOGETHER_API_URL, {
                     method: 'POST',
                     headers: {
@@ -1456,23 +1408,17 @@
                     },
                     body: JSON.stringify({
                         model: "meta-llama/Llama-3-70b-chat-hf",
-                        messages: [
-                            {
-                                role: "user",
-                                content: prompt
-                            }
-                        ],
+                        messages: [{ role: "user", content: prompt }],
                         max_tokens: 600,
                         temperature: 0.7
                     })
                 });
-                
                 const data = await response.json();
-                
                 if (data.choices && data.choices.length > 0) {
                     currentPrayer = data.choices[0].message.content.trim();
                     prayerText.textContent = currentPrayer;
                     savePrayerBtn.style.display = 'inline-block';
+                    sharePrayerBtn.style.display = 'inline-block';
                 } else {
                     prayerText.textContent = "Не удалось сгенерировать молитву. Попробуйте еще раз.";
                 }
@@ -1482,10 +1428,8 @@
             }
         }
         
-        // Функция для сохранения молитвы
         function savePrayer() {
             if (!currentPrayer) return;
-            
             const prayerNeed = {
                 id: Date.now().toString(),
                 text: currentPrayer,
@@ -1493,26 +1437,52 @@
                 date: new Date().toISOString(),
                 answered: false
             };
-            
             if (!categories.includes('Молитвы')) {
                 categories.push('Молитвы');
                 localStorage.setItem('prayerCategories', JSON.stringify(categories));
                 renderCategoryButtons();
             }
-            
             needs.push(prayerNeed);
             localStorage.setItem('prayerNeeds', JSON.stringify(needs));
-            
             alert('Молитва сохранена в категории "Молитвы"!');
             savePrayerBtn.style.display = 'none';
+            sharePrayerBtn.style.display = 'none';
             renderChatsList();
         }
         
-        // Функция для сохранения нужды
+        function sharePrayer() {
+            if (!currentPrayer) return;
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Молитва',
+                    text: currentPrayer
+                }).catch(err => {
+                    console.error('Ошибка при попытке поделиться:', err);
+                    fallbackCopyToClipboard(currentPrayer);
+                });
+            } else {
+                fallbackCopyToClipboard(currentPrayer);
+            }
+        }
+        
+        function fallbackCopyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                alert('Молитва скопирована в буфер обмена!');
+            } catch (err) {
+                console.error('Ошибка копирования:', err);
+                alert('Не удалось скопировать. Попробуйте вручную.');
+            }
+            document.body.removeChild(textarea);
+        }
+        
         function saveNeed() {
             const text = needText.value.trim();
             let category = selectedCategory;
-            
             if (newCategory.value.trim() !== '') {
                 category = newCategory.value.trim();
                 if (!categories.includes(category)) {
@@ -1522,16 +1492,13 @@
                     renderChatsList();
                 }
             }
-            
             if (text === '') {
                 alert('Введите текст молитвенной нужды!');
                 needText.focus();
                 return;
             }
-            
             const id = needText.dataset.editId || Date.now().toString();
             const existingIndex = needs.findIndex(n => n.id === id);
-            
             const newNeed = {
                 id: id,
                 text: text,
@@ -1539,20 +1506,16 @@
                 date: new Date().toISOString(),
                 answered: existingIndex !== -1 ? needs[existingIndex].answered : false
             };
-            
             if (existingIndex !== -1) {
                 needs[existingIndex] = newNeed;
             } else {
                 needs.push(newNeed);
             }
-            
             localStorage.setItem('prayerNeeds', JSON.stringify(needs));
-            
             alert('Нужда сохранена!');
             switchSection('chats-list');
         }
         
-        // Функция для редактирования нужды
         function editNeed(id) {
             const need = needs.find(n => n.id === id);
             if (need) {
@@ -1563,7 +1526,6 @@
             }
         }
         
-        // Функция для удаления нужды
         function deleteNeed(id) {
             if (confirm('Удалить эту нужду?')) {
                 needs = needs.filter(n => n.id !== id);
@@ -1573,14 +1535,12 @@
             }
         }
         
-        // Функция для обновления размера шрифта
         function updateFontSize(size) {
             document.documentElement.style.setProperty('--font-size-base', `${size}px`);
             fontSizeValue.textContent = size;
             localStorage.setItem('fontSize', size);
         }
         
-        // Функция для загрузки цвета фона
         function loadBackgroundColor() {
             const savedColor = localStorage.getItem('backgroundColor');
             if (savedColor) {
@@ -1592,7 +1552,6 @@
             }
         }
         
-        // Функция для темной темы
         function toggleDarkMode(isDark) {
             document.body.classList.toggle('dark-mode', isDark);
             localStorage.setItem('darkMode', isDark);
@@ -1604,7 +1563,44 @@
             toggleDarkMode(isDark);
         }
         
-        // Обработчики событий
+        function setupSpeechRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                micBtn.style.display = 'none';
+                return;
+            }
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'ru-RU';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+            
+            micBtn.addEventListener('click', () => {
+                if (micBtn.classList.contains('active')) {
+                    recognition.stop();
+                    micBtn.classList.remove('active');
+                } else {
+                    recognition.start();
+                    micBtn.classList.add('active');
+                }
+            });
+            
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                needText.value += (needText.value ? ' ' : '') + transcript;
+                micBtn.classList.remove('active');
+            };
+            
+            recognition.onerror = (event) => {
+                console.error('Ошибка распознавания:', event.error);
+                micBtn.classList.remove('active');
+                alert('Ошибка голосового ввода: ' + event.error);
+            };
+            
+            recognition.onend = () => {
+                micBtn.classList.remove('active');
+            };
+        }
+        
         burgerBtn.addEventListener('click', toggleMenu);
         overlay.addEventListener('click', toggleMenu);
         
@@ -1616,28 +1612,19 @@
             });
         });
         
-        backToChats.addEventListener('click', () => {
-            switchSection('chats-list');
-        });
-        
-        addNeedBtn.addEventListener('click', () => {
-            switchSection('add-need');
-        });
-        
-        prayerBtn.addEventListener('click', () => {
-            switchSection('prayer-generator');
-        });
-        
+        backToChats.addEventListener('click', () => switchSection('chats-list'));
+        addNeedBtn.addEventListener('click', () => switchSection('add-need'));
+        prayerBtn.addEventListener('click', () => switchSection('prayer-generator'));
         generatePrayerBtn.addEventListener('click', generatePrayer);
         savePrayerBtn.addEventListener('click', savePrayer);
-        
+        sharePrayerBtn.addEventListener('click', sharePrayer);
         deletePrayerBtn.addEventListener('click', () => {
             prayerText.textContent = 'Нажмите "Сгенерировать молитву", чтобы создать молитву на основе этих нужд.';
             currentPrayer = null;
             savePrayerBtn.style.display = 'none';
+            sharePrayerBtn.style.display = 'none';
             showRandomNeeds();
         });
-        
         submitNeed.addEventListener('click', saveNeed);
         
         colorOptions.forEach(option => {
@@ -1702,12 +1689,13 @@
             toggleDarkMode(e.target.checked);
         });
         
-        // Закрытие меню при скролле вне его
         document.addEventListener('touchstart', (e) => {
             if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && !burgerBtn.contains(e.target)) {
                 toggleMenu();
             }
         });
+        
+        setupSpeechRecognition();
     </script>
 </body>
 </html>
