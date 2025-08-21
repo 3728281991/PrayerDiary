@@ -14,7 +14,7 @@
         }
         
         body {
-            background: #e29954;
+            background: #F5F5DC;
             font-family: "Nunito", sans-serif;
             color: #333;
             overflow-x: hidden;
@@ -597,9 +597,6 @@
             </button>
             <div class="app-title">Молитвенный Дневник</div>
         </div>
-        <button class="search-btn" id="searchBtn" aria-label="Поиск">
-            <i class="fas fa-search"></i>
-        </button>
     </header>
     
     <!-- Панель поиска -->
@@ -726,23 +723,6 @@
         burgerBtn.addEventListener('click', toggleMenu);
         overlay.addEventListener('click', toggleMenu);
         
-        // Обработчики для поиска
-        searchBtn.addEventListener('click', () => {
-            searchContainer.classList.add('open');
-        });
-        
-        closeSearch.addEventListener('click', () => {
-            searchContainer.classList.remove('open');
-        });
-        
-        // Обработчики для сторис
-        addStory.addEventListener('click', () => {
-            storyModal.classList.add('open');
-        });
-        
-        storyClose.addEventListener('click', () => {
-            storyModal.classList.remove('open');
-        });
         
         // Обработчики для элементов меню
         menuItems.forEach(item => {
@@ -777,7 +757,57 @@
                 toggleMenu();
             }
         });
+
+        // Функция для скрытия верхней панели Telegram
+        function hideTelegramHeader() {
+            // Проверяем, открыты ли мы в Telegram WebView
+            if (window.Telegram && Telegram.WebApp) {
+                // Расширяем на весь экран и скрываем верхнюю панель
+                Telegram.WebApp.expand();
+                Telegram.WebApp.enableClosingConfirmation();
+                Telegram.WebApp.setHeaderColor('#e29954');
+                Telegram.WebApp.BackButton.hide();
+                
+                // Скрываем стандартную верхнюю панель
+                const header = document.querySelector('.tg-head');
+                if (header) {
+                    header.style.display = 'none';
+                }
+                
+                // Добавляем свою кастомную кнопку закрытия
+                if (!document.getElementById('tg-close-btn')) {
+                    const closeBtn = document.createElement('div');
+                    closeBtn.id = 'tg-close-btn';
+                    closeBtn.innerHTML = '×';
+                    closeBtn.style.position = 'fixed';
+                    closeBtn.style.top = '15px';
+                    closeBtn.style.right = '15px';
+                    closeBtn.style.width = '30px';
+                    closeBtn.style.height = '30px';
+                    closeBtn.style.background = 'rgba(0,0,0,0.3)';
+                    closeBtn.style.color = 'white';
+                    closeBtn.style.borderRadius = '50%';
+                    closeBtn.style.display = 'flex';
+                    closeBtn.style.alignItems = 'center';
+                    closeBtn.style.justifyContent = 'center';
+                    closeBtn.style.fontSize = '20px';
+                    closeBtn.style.fontWeight = 'bold';
+                    closeBtn.style.zIndex = '1000';
+                    closeBtn.style.cursor = 'pointer';
+                    closeBtn.addEventListener('click', () => {
+                        Telegram.WebApp.close();
+                    });
+                    document.body.appendChild(closeBtn);
+                }
+            }
+        }
+
+        // Вызываем функцию при загрузке страницы
+        document.addEventListener('DOMContentLoaded', hideTelegramHeader);
+        
+        // Также обрабатываем изменения видимости (на случай, если Telegram изменит DOM позже)
+        const observer = new MutationObserver(hideTelegramHeader);
+        observer.observe(document.body, { childList: true, subtree: true });
     </script>
 </body>
-
 </html>
