@@ -165,6 +165,25 @@
             box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
         }
 
+        .btn-row {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-row .btn-primary { flex: 1; }
+        .btn-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, var(--primary), #A0522D);
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-family: Arial, sans-serif;
+        }
+
         .divider {
             text-align: center;
             margin: 20px 0;
@@ -249,6 +268,59 @@
         .toast.error {
             background: var(--error);
         }
+
+        /* Дополнительно: стиль строки запоминания и забыли пароль */
+        #authForm .form-group.remember-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: -6px;
+            margin-bottom: 10px;
+        }
+        #authForm .form-group.remember-row label {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+        #authForm .form-group.remember-row .hint a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        #authForm .form-group.remember-row .hint a:hover {
+            text-decoration: underline;
+        }
+        #rememberMe { width: 16px; height: 16px; }
+
+        .btn-google {
+            background: #fff;
+            border: 2px solid #E0E0E0;
+            color: #333;
+        }
+        .btn-google i { color: #DB4437; }
+
+        /* Сообщения об ошибках под полями */
+        .error-text {
+            font-size: 0.8rem;
+            color: var(--error);
+            margin-top: 6px;
+            display: none;
+        }
+        .has-error input { border-color: var(--error) !important; }
+
+        /* Панель приветствия после входа */
+        .welcome {
+            display: none;
+            text-align: center;
+        }
+        .welcome .avatar {
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+        .welcome h2 { color: var(--primary); margin-bottom: 6px; }
+        .welcome p { color: var(--text-light); margin-bottom: 16px; }
 
         .loading {
             display: none;
@@ -336,18 +408,20 @@
             </div>
         </div>
         
-            <button type="submit" class="btn btn-primary" id="loginBtn">
-                <i class="fa-solid fa-sign-in-alt"></i> Войти
+            <div class="btn-row">
+                <button type="submit" class="btn btn-primary" id="loginBtn">
+                    <i class="fa-solid fa-sign-in-alt"></i> Войти
                 </button>
+                <button type="button" class="btn-icon" id="googleIconBtn">G</button>
+            </div>
 
-            <div class="divider">
+            <div class="divider" id="regDivider">
                 <span>или</span>
             </div>
             
             <button type="button" class="btn btn-secondary" id="registerBtn">
                 <i class="fa-solid fa-user-plus"></i> Создать аккаунт
-                    </button>
-            <div class="hint" style="text-align:center;">Нажмите «Создать аккаунт», чтобы открыть дополнительные поля</div>
+            </button>
         </form>
 
         <div class="loading" id="loading">
@@ -396,24 +470,17 @@
         const rememberWrap = document.createElement('div');
         rememberWrap.className = 'form-group';
         rememberWrap.innerHTML = '<label style="display:flex;align-items:center;gap:10px;font-weight:600;color:#666;"><input type="checkbox" id="rememberMe"> Запомнить меня</label> <div class="hint"><a href="#" id="forgotLink">Забыли пароль?</a></div>';
-        document.getElementById('authForm').insertBefore(rememberWrap, document.getElementById('authForm').querySelector('.divider'));
+        document.getElementById('authForm').insertBefore(rememberWrap, document.getElementById('regDivider'));
         const rememberMe = rememberWrap.querySelector('#rememberMe');
         const forgotLink = rememberWrap.querySelector('#forgotLink');
-        // Google кнопка
-        const googleBtn = document.createElement('button');
-        googleBtn.type = 'button';
-        googleBtn.className = 'btn';
-        googleBtn.style.background = '#fff';
-        googleBtn.style.border = '2px solid #E0E0E0';
-        googleBtn.style.color = '#333';
-        googleBtn.innerHTML = '<i class="fa-brands fa-google"></i> Войти с Google';
-        document.getElementById('authForm').appendChild(googleBtn);
+        // Google кнопка (иконка G справа от Войти)
+        const googleBtn = document.getElementById('googleIconBtn');
         const fullNameGroup = document.getElementById('fullNameGroup');
         const userBirthRow = document.getElementById('userBirthRow');
         const avatarGroup = document.getElementById('avatarGroup');
         const confirmGroup = document.getElementById('confirmGroup');
         const fullNameInput = document.getElementById('fullName');
-        const usernameInput = document.getElementById('username');
+        // username больше не используется
         const birthdateInput = document.getElementById('birthdate');
         const avatarInput = document.getElementById('avatarInput');
         const avatarPreview = document.getElementById('avatarPreview');
@@ -442,12 +509,15 @@
         function toggleRegisterMode(on) {
             registerMode = on;
             fullNameGroup.style.display = on ? '' : 'none';
-            userBirthRow.style.display = on ? 'grid' : 'none';
+            userBirthRow.style.display = on ? 'none' : 'none';
             avatarGroup.style.display = on ? 'flex' : 'none';
             confirmGroup.style.display = on ? '' : 'none';
-            document.querySelector('.divider span').textContent = on ? 'уже есть аккаунт?' : 'или';
-            registerBtn.innerHTML = on ? '<i class="fa-solid fa-user-check"></i> Зарегистрироваться' : '<i class="fa-solid fa-user-plus"></i> Создать аккаунт';
-            loginBtn.innerHTML = on ? '<i class="fa-solid fa-arrow-left"></i> Войти' : '<i class="fa-solid fa-sign-in-alt"></i> Войти';
+            // скрыть подсказки и лишнее, когда вошли в режим регистрации
+            rememberWrap.style.display = on ? 'none' : '';
+            // скрыть слово "Регистрация" и разделитель в режиме регистрации
+            document.getElementById('regDivider').style.display = 'none';
+            document.querySelector('#regDivider span').textContent = on ? 'Регистрация' : 'или';
+            registerBtn.innerHTML = on ? '<i class="fa-solid fa-user-check"></i> Завершить регистрацию' : '<i class="fa-solid fa-user-plus"></i> Создать аккаунт';
         }
         toggleRegisterMode(false);
 
@@ -512,6 +582,9 @@
                     message = 'Неверный формат email';
                 }
                 showToast(message, 'error');
+                // показать подсказку для сброса пароля
+                const hintEl = rememberWrap.querySelector('.hint');
+                if (hintEl) hintEl.style.visibility = 'visible';
             } finally {
                 setLoading(false);
             }
@@ -527,7 +600,7 @@
             const password = passwordInput.value;
             const confirm = confirmInput.value;
             const fullName = fullNameInput.value.trim();
-            const username = usernameInput.value.trim();
+            const username = '';
             const birthdate = birthdateInput.value;
 
             if (!email || !password || !confirm || !fullName || !birthdate) {
