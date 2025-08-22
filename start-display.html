@@ -6,6 +6,52 @@
     <title>Молитвенный Дневник</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
+    
+        // Конфигурация Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDP97NFPAegyUwTuGxj0QSdaitdl_rVT5Y",
+            authDomain: "molitva-2f407.firebaseapp.com",
+            projectId: "molitva-2f407",
+            storageBucket: "molitva-2f407.firebasestorage.app",
+            messagingSenderId: "456396310708",
+            appId: "1:456396310708:web:f131d20a4b736e832eafe1",
+            measurementId: "G-HM8W732HM3"
+        };
+    
+        // Инициализация Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+    
+        // Проверка аутентификации при загрузке страницы
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                // Пользователь не аутентифицирован, перенаправляем на страницу входа
+                window.location.href = 'index.html';
+            } else {
+                // Пользователь аутентифицирован, можно загружать контент
+                console.log('Пользователь вошел:', user.email);
+            }
+        });
+    
+        // Добавьте обработчик выхода
+        document.addEventListener('DOMContentLoaded', function() {
+            // Обработчик кнопки выхода в боковом меню
+            const logoutBtn = document.querySelector('.menu-item:last-child');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    auth.signOut().then(() => {
+                        window.location.href = 'index.html';
+                    }).catch((error) => {
+                        console.error('Ошибка выхода:', error);
+                    });
+                });
+            }
+        });
+    </script>
     <style>
         * {
             margin: 0;
