@@ -115,7 +115,7 @@
         .password-group {
             position: relative;
         }
-
+        
         .password-toggle {
             position: absolute;
             right: 15px;
@@ -256,11 +256,11 @@
             transform: translateX(100%);
             transition: transform 0.3s ease;
         }
-
+        
         .toast.show {
             transform: translateX(0);
         }
-
+        
         .toast.success {
             background: var(--success);
         }
@@ -414,14 +414,14 @@
                 </button>
                 <button type="button" class="btn-icon" id="googleIconBtn">G</button>
             </div>
-
+            
             <div class="divider" id="regDivider">
                 <span>или</span>
             </div>
             
             <button type="button" class="btn btn-secondary" id="registerBtn">
                 <i class="fa-solid fa-user-plus"></i> Создать аккаунт
-            </button>
+                    </button>
         </form>
 
         <div class="loading" id="loading">
@@ -571,7 +571,7 @@
             try {
                 await setPersistence(auth, rememberMe.checked ? browserLocalPersistence : undefined);
                 await signInWithEmailAndPassword(auth, email, password);
-                showToast('Добро пожаловать!', 'success');
+                window.location.href = 'start-display.html';
             } catch (error) {
                 let message = 'Ошибка входа';
                 if (error.code === 'auth/user-not-found') {
@@ -638,7 +638,7 @@
                     photoURL: photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName || email)}`,
                     createdAt: serverTimestamp()
                 });
-                showToast('Аккаунт успешно создан!', 'success');
+                window.location.href = 'start-display.html';
             } catch (error) {
                 let message = 'Ошибка регистрации';
                 if (error.code === 'auth/email-already-in-use') {
@@ -685,7 +685,7 @@
                     photoURL: u.photoURL,
                     createdAt: serverTimestamp()
                 }, { merge: true });
-                showToast('Вход через Google выполнен', 'success');
+                window.location.href = 'start-display.html';
             } catch (e3) {
                 showToast('Google вход не удался: ' + (e3?.message || ''), 'error');
             } finally {
