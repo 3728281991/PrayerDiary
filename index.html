@@ -703,9 +703,15 @@
         // Следим за авторизацией
         auth.onAuthStateChanged(user => {
             if (user) {
-                console.log('Пользователь вошел:', user.email);
+                // Пользователь уже вошел, перенаправляем на главную
+                console.log('Пользователь уже вошел:', user.email);
+                window.location.href = 'start-display.html';
+            } else {
+                // Пользователь не вошел, показываем форму входа
+                console.log('Пользователь не аутентифицирован');
             }
         });
     </script>
 </body>
 </html>
+
