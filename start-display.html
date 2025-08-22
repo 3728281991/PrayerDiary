@@ -1,0 +1,1702 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Молитвенный Дневник</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-color: #8B4513;
+            --secondary-color: #D2B48C;
+            --accent-color: #FFD700;
+            --light-color: #F5F5DC;
+            --dark-color: #4A2C2A;
+            --success-color: #4CAF50;
+            --danger-color: #f44336;
+            --chat-bg: #ffffff;
+            --chat-border: #e0e0e0;
+            --text-color: #333;
+            --muted-color: #777;
+            --font-size-base: 16px;
+        }
+        
+        body {
+            background: var(--light-color);
+            font-family: "Nunito", sans-serif;
+            color: var(--text-color);
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+            transition: background 0.3s ease, color 0.3s ease;
+            background-size: cover;
+            background-position: center;
+            font-size: var(--font-size-base);
+        }
+        
+        body.dark-mode {
+            --light-color: #2C2C2C;
+            --chat-bg: #3C3C3C;
+            --text-color: #EEE;
+            --muted-color: #BBB;
+            --chat-border: #555;
+            background: var(--light-color);
+            color: var(--text-color);
+        }
+        
+        header {
+            height: 60px;
+            padding: 10px 15px;
+            background-color: var(--chat-bg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 100;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+        
+        .burger-btn {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            background: none;
+            border: none;
+            margin-right: 15px;
+        }
+        
+        .burger-line {
+            width: 24px;
+            height: 2px;
+            background-color: var(--text-color);
+            margin: 4px 0;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+            border-radius: 2px;
+        }
+        
+        .burger-btn.active .burger-line:nth-child(1) {
+            transform: translateY(10px) rotate(45deg);
+        }
+        
+        .burger-btn.active .burger-line:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .burger-btn.active .burger-line:nth-child(3) {
+            transform: translateY(-10px) rotate(-45deg);
+        }
+        
+        .app-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 80%;
+            max-width: 300px;
+            height: 100%;
+            background: var(--chat-bg);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+            transition: left 0.3s ease;
+            z-index: 99;
+            padding-top: 70px;
+            overflow-y: auto;
+        }
+        
+        .sidebar.open {
+            left: 0;
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
+            z-index: 98;
+        }
+        
+        .overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            text-decoration: none;
+            color: var(--text-color);
+            transition: background 0.2s;
+            border-left: 4px solid transparent;
+            cursor: pointer;
+        }
+        
+        .menu-item:hover {
+            background: rgba(139, 69, 19, 0.1);
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .menu-icon {
+            width: 24px;
+            margin-right: 15px;
+            text-align: center;
+            color: var(--primary-color);
+            font-size: 18px;
+        }
+        
+        .menu-text {
+            font-size: 16px;
+        }
+        
+        .content {
+            padding: 20px;
+            max-width: 100%;
+            margin: 0 auto;
+            padding-top: 80px;
+            padding-bottom: 100px;
+            position: relative;
+        }
+        
+        .chats-container {
+            background: var(--chat-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 25px;
+            position: absolute;
+            width: calc(100% - 40px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .chats-container.active {
+            display: block;
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .chats-container.hidden {
+            opacity: 0;
+            transform: translateX(-100%);
+            pointer-events: none;
+        }
+        
+        .chat-list {
+            list-style: none;
+        }
+        
+        .chat-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid var(--chat-border);
+            cursor: pointer;
+            transition: background 0.2s;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.3s ease forwards;
+        }
+        
+        .chat-item:nth-child(1) { animation-delay: 0.1s; }
+        .chat-item:nth-child(2) { animation-delay: 0.15s; }
+        .chat-item:nth-child(3) { animation-delay: 0.2s; }
+        .chat-item:nth-child(4) { animation-delay: 0.25s; }
+        .chat-item:nth-child(5) { animation-delay: 0.3s; }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .chat-item:last-child {
+            border-bottom: none;
+        }
+        
+        .chat-item:hover {
+            background: rgba(139, 69, 19, 0.05);
+        }
+        
+        .chat-item.active {
+            background: rgba(139, 69, 19, 0.1);
+        }
+        
+        .chat-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .chat-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .chat-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--primary-color);
+        }
+        
+        .chat-preview {
+            font-size: 14px;
+            color: var(--muted-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .chat-time {
+            font-size: 12px;
+            color: var(--muted-color);
+            margin-left: 10px;
+            flex-shrink: 0;
+        }
+        
+        .chat-window {
+            background: var(--chat-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 25px;
+            display: none;
+            flex-direction: column;
+            height: calc(100vh - 160px);
+            position: absolute;
+            width: calc(100% - 40px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            opacity: 0;
+            transform: translateX(100%);
+        }
+        
+        .chat-window.active {
+            display: flex;
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .chat-header {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid var(--chat-border);
+            background: var(--chat-bg);
+        }
+        
+        .back-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            margin-right: 15px;
+            color: var(--primary-color);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(139, 69, 19, 0.1);
+        }
+        
+        .chat-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .message {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            position: relative;
+            word-wrap: break-word;
+            background: #F3E5F5;
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+            opacity: 0;
+            transform: translateY(10px);
+            margin-bottom: 10px;
+            animation: messageFadeIn 0.3s ease forwards;
+        }
+        
+        .message:nth-child(1) { animation-delay: 0.1s; }
+        .message:nth-child(2) { animation-delay: 0.15s; }
+        .message:nth-child(3) { animation-delay: 0.2s; }
+        .message:nth-child(4) { animation-delay: 0.25s; }
+        .message:nth-child(5) { animation-delay: 0.3s; }
+        
+        @keyframes messageFadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        body.dark-mode .message {
+            background: #4A2C2A;
+        }
+        
+        .message-time {
+            font-size: 11px;
+            color: var(--muted-color);
+            margin-top: 5px;
+            text-align: right;
+        }
+        
+        .message-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+            justify-content: flex-end;
+        }
+        
+        .message-action {
+            background: rgba(139, 69, 19, 0.1);
+            border: none;
+            cursor: pointer;
+            color: var(--primary-color);
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            transition: background 0.2s;
+        }
+        
+        .message-action:hover {
+            background: rgba(139, 69, 19, 0.2);
+        }
+        
+        .message.answered {
+            opacity: 0.6;
+            text-decoration: line-through;
+            transition: opacity 0.3s ease, text-decoration 0.3s ease;
+        }
+        
+        .message-action.answer-btn {
+            background: rgba(76, 175, 80, 0.1);
+            color: var(--success-color);
+        }
+        
+        .message-action.answer-btn:hover {
+            background: rgba(76, 175, 80, 0.2);
+        }
+        
+        .add-need-form {
+            background: var(--chat-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 25px;
+            display: none;
+            position: absolute;
+            width: calc(100% - 40px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            opacity: 0;
+            transform: translateX(100%);
+        }
+        
+        .add-need-form.active {
+            display: block;
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin: 10px 0;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .form-input, .form-textarea {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px 15px;
+            border: 1px solid var(--chat-border);
+            border-radius: 8px;
+            font-family: "Nunito", sans-serif;
+            font-size: var(--font-size-base);
+            background: var(--chat-bg);
+            color: var(--text-color);
+            transition: border 0.2s;
+        }
+        
+        .form-input:focus, .form-textarea:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+        
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .category-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .category-btn {
+            padding: 8px 15px;
+            background: rgba(139, 69, 19, 0.1);
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: "Nunito", sans-serif;
+            color: var(--text-color);
+            transition: all 0.2s;
+        }
+        
+        .category-btn:hover {
+            background: var(--secondary-color);
+        }
+        
+        .category-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .form-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: "Nunito", sans-serif;
+            font-weight: 600;
+            transition: background 0.2s, transform 0.1s;
+        }
+        
+        .form-btn:active {
+            transform: scale(0.98);
+        }
+        
+        .cancel-btn {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        body.dark-mode .cancel-btn {
+            background: #555;
+            color: #EEE;
+        }
+        
+        .cancel-btn:hover {
+            background: #e0e0e0;
+        }
+        
+        body.dark-mode .cancel-btn:hover {
+            background: #666;
+        }
+        
+        .submit-btn {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .submit-btn:hover {
+            background: var(--dark-color);
+        }
+        
+        .prayer-section {
+            background: var(--chat-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 25px;
+            display: none;
+            position: absolute;
+            width: calc(100% - 40px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            opacity: 0;
+            transform: translateX(100%);
+        }
+        
+        .prayer-section.active {
+            display: block;
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .prayer-title {
+            font-size: 20px;
+            color: var(--primary-color);
+            margin: 15px 0;
+        }
+        
+        .prayer-text {
+            background: rgba(139, 69, 19, 0.05);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            min-height: 150px;
+            font-style: italic;
+            border-left: 4px solid var(--primary-color);
+            color: var(--text-color);
+        }
+        
+        .prayer-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .prayer-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: "Nunito", sans-serif;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .prayer-btn:active {
+            transform: scale(0.98);
+        }
+        
+        .generate-btn {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .generate-btn:hover {
+            background: var(--dark-color);
+        }
+        
+        .save-btn {
+            background: var(--success-color);
+            color: white;
+        }
+        
+        .save-btn:hover {
+            background: #3d8b40;
+        }
+        
+        .share-btn {
+            background: var(--accent-color);
+            color: var(--dark-color);
+        }
+        
+        .share-btn:hover {
+            background: #FFC107;
+        }
+        
+        .delete-btn {
+            background: var(--danger-color);
+            color: white;
+        }
+        
+        .delete-btn:hover {
+            background: #d32f2f;
+        }
+        
+        .settings-panel {
+            background: var(--chat-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 25px;
+            display: none;
+            position: absolute;
+            width: calc(100% - 40px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            opacity: 0;
+            transform: translateX(100%);
+        }
+        
+        .settings-panel.active {
+            display: block;
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .settings-title {
+            font-size: 22px;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        .settings-item {
+            padding: 15px 0;
+            border-bottom: 1px solid var(--chat-border);
+        }
+        
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+        
+        .settings-text {
+            font-size: 16px;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .color-picker {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        
+        .color-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.2s, border 0.2s;
+        }
+        
+        .color-option:hover {
+            transform: scale(1.1);
+            border-color: var(--primary-color);
+        }
+        
+        .color-option.active {
+            border-color: var(--primary-color);
+            transform: scale(1.1);
+        }
+        
+        .font-size-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .font-size-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            border: 1px solid var(--chat-border);
+            background: var(--chat-bg);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: background 0.2s;
+            color: var(--text-color);
+        }
+        
+        .font-size-btn:hover {
+            background: rgba(139, 69, 19, 0.1);
+        }
+        
+        .font-size-value {
+            min-width: 40px;
+            text-align: center;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        
+        .custom-bg-upload {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .upload-btn {
+            padding: 10px 15px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: background 0.2s;
+        }
+        
+        .upload-btn:hover {
+            background: var(--dark-color);
+        }
+        
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        .floating-buttons {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 90;
+        }
+        
+        .floating-btn {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: none;
+            background: var(--primary-color);
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .floating-btn:hover {
+            transform: scale(1.1);
+            background: var(--dark-color);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                padding: 15px;
+                padding-top: 70px;
+                padding-bottom: 90px;
+            }
+            
+            .floating-buttons {
+                bottom: 15px;
+                right: 15px;
+                gap: 10px;
+            }
+            
+            .floating-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+        }
+        
+        .loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(139, 69, 19, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--secondary-color);
+            border-radius: 3px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-color);
+        }
+        
+        .decoration {
+            position: fixed;
+            pointer-events: none;
+            z-index: -1;
+            font-size: 100px;
+            color: rgba(139, 69, 19, 0.05);
+            opacity: 0.5;
+        }
+        
+        .cross {
+            top: 40%;
+            left: 5%;
+            transform: rotate(-10deg);
+        }
+        
+        .dove {
+            bottom: 20%;
+            right: 5%;
+            transform: rotate(10deg);
+        }
+        
+        .need-category {
+            display: block;
+            font-size: 12px;
+            color: var(--muted-color);
+            margin-top: 5px;
+        }
+        
+        .mic-btn {
+            background: var(--accent-color);
+            color: var(--dark-color);
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .mic-btn:hover {
+            background: #FFC107;
+        }
+        
+        .mic-btn.active {
+            background: var(--danger-color);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="decoration cross">✝</div>
+    <div class="decoration dove">🕊</div>
+    
+    <header>
+        <div class="header-left">
+            <button class="burger-btn" id="burgerBtn" aria-label="Открыть меню" aria-expanded="false">
+                <span class="burger-line"></span>
+                <span class="burger-line"></span>
+                <span class="burger-line"></span>
+            </button>
+            <div class="app-title">Молитвенный Дневник</div>
+        </div>
+    </header>
+    
+    <div class="sidebar" id="sidebar">
+        <div class="menu-item" data-target="chats-list" aria-label="Главная">
+            <div class="menu-icon"><i class="fas fa-home"></i></div>
+            <div class="menu-text">Главная</div>
+        </div>
+        <div class="menu-item" data-target="add-need" aria-label="Добавить нужду">
+            <div class="menu-icon"><i class="fas fa-plus-circle"></i></div>
+            <div class="menu-text">Добавить нужду</div>
+        </div>
+        <div class="menu-item" data-target="prayer-generator" aria-label="Помолиться за нужду">
+            <div class="menu-icon"><i class="fas fa-pray"></i></div>
+            <div class="menu-text">Помолиться за нужду</div>
+        </div>
+        <div class="menu-item" data-target="settings" aria-label="Настройки">
+            <div class="menu-icon"><i class="fas fa-cog"></i></div>
+            <div class="menu-text">Настройки</div>
+        </div>
+    </div>
+    
+    <div class="overlay" id="overlay" aria-hidden="true"></div>
+    
+    <div class="content" id="content">
+        <div class="chats-container active" id="chats-list">
+            <ul class="chat-list" id="chat-list"></ul>
+        </div>
+        
+        <div class="chat-window" id="chat-window">
+            <div class="chat-header">
+                <button class="back-btn" id="backToChats" aria-label="Назад к списку">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h2 class="chat-title" id="chat-title">Категория</h2>
+            </div>
+            <div class="chat-messages" id="chat-messages"></div>
+        </div>
+        
+        <div class="add-need-form" id="add-need">
+            <div class="chat-header">
+                <button class="back-btn" data-target="chats-list" aria-label="Назад">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h2 class="chat-title">Добавить нужду</h2>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="need-text">Молитвенная нужда</label>
+                <textarea class="form-textarea" id="need-text" placeholder="Опишите вашу молитвенную нужду..." aria-required="true"></textarea>
+                <button class="mic-btn" id="mic-btn"><i class="fas fa-microphone"></i> Голосовой ввод</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Выберите категорию</label>
+                <div class="category-buttons" id="category-buttons"></div>
+                <input type="text" class="form-input" id="new-category" placeholder="Или введите новую категорию" aria-label="Новая категория">
+            </div>
+            <div class="form-actions">
+                <button class="form-btn cancel-btn" data-target="chats-list">Отмена</button>
+                <button class="form-btn submit-btn" id="submit-need">Сохранить</button>
+            </div>
+        </div>
+        
+        <div class="prayer-section" id="prayer-generator">
+            <div class="chat-header">
+                <button class="back-btn" data-target="chats-list" aria-label="Назад">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h2 class="chat-title">Помолиться за нужду</h2>
+            </div>
+            <h3 class="prayer-title">Случайные нужды для молитвы</h3>
+            <div id="random-needs"></div>
+            <div class="prayer-text" id="prayer-text">
+                Нажмите "Сгенерировать молитву", чтобы создать молитву на основе этих нужд.
+            </div>
+            <div class="prayer-actions">
+                <button class="prayer-btn generate-btn" id="generate-prayer">
+                    <i class="fas fa-wand-magic-sparkles"></i> Сгенерировать молитву
+                </button>
+                <button class="prayer-btn save-btn" id="save-prayer" style="display: none;">
+                    <i class="fas fa-save"></i> Сохранить молитву
+                </button>
+                <button class="prayer-btn share-btn" id="share-prayer" style="display: none;">
+                    <i class="fas fa-share"></i> Поделиться
+                </button>
+                <button class="prayer-btn delete-btn" id="delete-prayer">
+                    <i class="fas fa-trash"></i> Очистить
+                </button>
+            </div>
+        </div>
+        
+        <div class="settings-panel" id="settings">
+            <div class="chat-header">
+                <button class="back-btn" data-target="chats-list" aria-label="Назад">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h2 class="chat-title">Настройки</h2>
+            </div>
+            <div class="settings-item">
+                <div class="settings-text">Цвет фона</div>
+                <div class="color-picker">
+                    <div class="color-option active" style="background: #F5F5DC;" data-color="#F5F5DC"></div>
+                    <div class="color-option" style="background: #E6F7FF;" data-color="#E6F7FF"></div>
+                    <div class="color-option" style="background: #FFF0F5;" data-color="#FFF0F5"></div>
+                    <div class="color-option" style="background: #F0FFF0;" data-color="#F0FFF0"></div>
+                    <div class="color-option" style="background: #FFF8E1;" data-color="#FFF8E1"></div>
+                </div>
+            </div>
+            <div class="settings-item">
+                <div class="settings-text">Свой фон из галереи</div>
+                <div class="custom-bg-upload">
+                    <input type="file" id="bg-upload" accept="image/*" style="display: none;">
+                    <button class="upload-btn" id="bg-upload-btn">
+                        <i class="fas fa-upload"></i> Выбрать изображение
+                    </button>
+                </div>
+            </div>
+            <div class="settings-item">
+                <div class="settings-text">Размер текста</div>
+                <div class="font-size-control">
+                    <button class="font-size-btn" id="font-decrease" aria-label="Уменьшить шрифт">-</button>
+                    <span class="font-size-value" id="font-size-value">16</span>
+                    <button class="font-size-btn" id="font-increase" aria-label="Увеличить шрифт">+</button>
+                </div>
+            </div>
+            <div class="settings-item">
+                <div class="settings-text">Темная тема</div>
+                <div class="toggle-switch">
+                    <label class="switch">
+                        <input type="checkbox" id="dark-mode-toggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="settings-item">
+                <div class="settings-text">Сбросить все данные</div>
+                <button class="prayer-btn delete-btn" id="reset-data">
+                    <i class="fas fa-trash"></i> Сбросить
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="floating-buttons">
+        <button class="floating-btn" id="addNeedBtn" title="Добавить нужду" aria-label="Добавить нужду">
+            <i class="fas fa-plus"></i>
+        </button>
+        <button class="floating-btn" id="prayerBtn" title="Помолиться" aria-label="Помолиться">
+            <i class="fas fa-pray"></i>
+        </button>
+    </div>
+    
+    <script>
+        const TOGETHER_API_TOKEN = "2165ec5065898c6227d7f541961c1f1071a59fb437f7994baa7310153fa17c0b";
+        const TOGETHER_API_URL = "https://api.together.xyz/v1/chat/completions";
+        
+        const burgerBtn = document.getElementById('burgerBtn');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        const content = document.getElementById('content');
+        const menuItems = document.querySelectorAll('.menu-item');
+        const backToChats = document.getElementById('backToChats');
+        const addNeedBtn = document.getElementById('addNeedBtn');
+        const prayerBtn = document.getElementById('prayerBtn');
+        const chatList = document.getElementById('chat-list');
+        const chatWindow = document.getElementById('chat-window');
+        const chatTitle = document.getElementById('chat-title');
+        const chatMessages = document.getElementById('chat-messages');
+        const randomNeeds = document.getElementById('random-needs');
+        const generatePrayerBtn = document.getElementById('generate-prayer');
+        const savePrayerBtn = document.getElementById('save-prayer');
+        const sharePrayerBtn = document.getElementById('share-prayer');
+        const prayerText = document.getElementById('prayer-text');
+        const deletePrayerBtn = document.getElementById('delete-prayer');
+        const colorOptions = document.querySelectorAll('.color-option');
+        const fontIncrease = document.getElementById('font-increase');
+        const fontDecrease = document.getElementById('font-decrease');
+        const fontSizeValue = document.getElementById('font-size-value');
+        const resetDataBtn = document.getElementById('reset-data');
+        const needText = document.getElementById('need-text');
+        const categoryButtons = document.getElementById('category-buttons');
+        const newCategory = document.getElementById('new-category');
+        const submitNeed = document.getElementById('submit-need');
+        const bgUpload = document.getElementById('bg-upload');
+        const bgUploadBtn = document.getElementById('bg-upload-btn');
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        const micBtn = document.getElementById('mic-btn');
+        
+        let needs = JSON.parse(localStorage.getItem('prayerNeeds')) || [];
+        let categories = JSON.parse(localStorage.getItem('prayerCategories')) || ['Здоровье', 'Семья', 'Финансы', 'Духовный рост', 'Работа', 'Отношения', 'Другие'];
+        let currentFontSize = parseInt(localStorage.getItem('fontSize')) || 16;
+        let selectedCategory = 'Другие';
+        let currentPrayer = null;
+        let currentChat = null;
+        let randomPrayerNeeds = [];
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            updateFontSize(currentFontSize);
+            renderChatsList();
+            loadBackgroundColor();
+            renderCategoryButtons();
+            loadDarkMode();
+            
+            const savedBg = localStorage.getItem('customBackground');
+            if (savedBg) {
+                document.body.style.backgroundImage = `url(${savedBg})`;
+            }
+            
+            if (!localStorage.getItem('prayerCategories')) {
+                localStorage.setItem('prayerCategories', JSON.stringify(categories));
+            }
+        });
+        
+        function toggleMenu() {
+            burgerBtn.classList.toggle('active');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('open');
+            const isExpanded = burgerBtn.getAttribute('aria-expanded') === 'true';
+            burgerBtn.setAttribute('aria-expanded', !isExpanded);
+        }
+        
+        function switchSection(sectionId) {
+            const sections = document.querySelectorAll('.chats-container, .chat-window, .add-need-form, .prayer-section, .settings-panel');
+            const targetSection = document.getElementById(sectionId);
+            
+            sections.forEach(section => {
+                section.classList.add('hidden');
+                section.classList.remove('active');
+            });
+            
+            setTimeout(() => {
+                targetSection.classList.remove('hidden');
+                targetSection.classList.add('active');
+            }, 300);
+            
+            if (sectionId === 'prayer-generator') {
+                showRandomNeeds();
+                prayerText.textContent = 'Нажмите "Сгенерировать молитву", чтобы создать молитву на основе этих нужд.';
+                currentPrayer = null;
+                savePrayerBtn.style.display = 'none';
+                sharePrayerBtn.style.display = 'none';
+            } else if (sectionId === 'add-need') {
+                needText.value = '';
+                newCategory.value = '';
+                selectCategory('Другие');
+                needText.dataset.editId = '';
+                micBtn.classList.remove('active');
+            } else if (sectionId === 'chats-list') {
+                renderChatsList();
+            }
+        }
+        
+        function renderChatsList() {
+            chatList.innerHTML = '';
+            categories.forEach(category => {
+                const categoryNeeds = needs.filter(need => need.category === category);
+                const lastNeed = categoryNeeds[categoryNeeds.length - 1];
+                const unansweredCount = categoryNeeds.filter(n => !n.answered).length;
+                
+                const chatItem = document.createElement('li');
+                chatItem.className = 'chat-item';
+                chatItem.dataset.category = category;
+                chatItem.innerHTML = `
+                    <div class="chat-avatar">
+                        <i class="fas ${getCategoryIcon(category)}"></i>
+                    </div>
+                    <div class="chat-info">
+                        <div class="chat-name">${category}</div>
+                        <div class="chat-preview">${unansweredCount} активных нужд из ${categoryNeeds.length}</div>
+                    </div>
+                    ${lastNeed ? `<div class="chat-time">${formatTime(lastNeed.date)}</div>` : ''}
+                `;
+                chatItem.addEventListener('click', () => openChat(category));
+                chatList.appendChild(chatItem);
+            });
+        }
+        
+        function getCategoryIcon(category) {
+            const icons = {
+                'Здоровье': 'fa-heartbeat',
+                'Семья': 'fa-users',
+                'Финансы': 'fa-money-bill-wave',
+                'Духовный рост': 'fa-bible',
+                'Работа': 'fa-briefcase',
+                'Отношения': 'fa-handshake',
+                'Другие': 'fa-folder'
+            };
+            return icons[category] || 'fa-folder';
+        }
+        
+        function openChat(category) {
+            currentChat = category;
+            chatTitle.textContent = category;
+            chatMessages.innerHTML = '';
+            const categoryNeeds = needs.filter(need => need.category === category);
+            
+            if (categoryNeeds.length === 0) {
+                chatMessages.innerHTML = `
+                    <div class="message">
+                        В этой категории пока нет молитвенных нужд. Добавьте первую!
+                        <div class="message-time">${formatTime(new Date().toISOString())}</div>
+                    </div>
+                `;
+            } else {
+                categoryNeeds.forEach((need, index) => {
+                    const messageElement = document.createElement('div');
+                    messageElement.className = `message ${need.answered ? 'answered' : ''}`;
+                    messageElement.style.animationDelay = `${index * 0.05}s`;
+                    messageElement.innerHTML = `
+                        ${need.text}
+                        <div class="message-time">${formatTime(need.date)}</div>
+                        <div class="message-actions">
+                            <button class="message-action edit-btn" data-id="${need.id}">
+                                <i class="fas fa-edit"></i> Редактировать
+                            </button>
+                            <button class="message-action delete-btn" data-id="${need.id}">
+                                <i class="fas fa-trash"></i> Удалить
+                            </button>
+                            <button class="message-action answer-btn" data-id="${need.id}" data-answered="${need.answered}">
+                                <i class="fas fa-check"></i> ${need.answered ? 'Вернуть' : 'Отметить отвеченной'}
+                            </button>
+                        </div>
+                    `;
+                    messageElement.querySelector('.edit-btn').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        editNeed(need.id);
+                    });
+                    messageElement.querySelector('.delete-btn').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        deleteNeed(need.id);
+                    });
+                    messageElement.querySelector('.answer-btn').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        toggleAnswered(need.id);
+                    });
+                    chatMessages.appendChild(messageElement);
+                });
+            }
+            
+            switchSection('chat-window');
+            setTimeout(() => {
+                chatMessages.scrollTo({
+                    top: chatMessages.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }, 100);
+        }
+        
+        function toggleAnswered(id) {
+            const need = needs.find(n => n.id === id);
+            if (need) {
+                need.answered = !need.answered;
+                localStorage.setItem('prayerNeeds', JSON.stringify(needs));
+                openChat(currentChat);
+                renderChatsList();
+            }
+        }
+        
+        function formatTime(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diff = now - date;
+            const minutes = Math.floor(diff / (1000 * 60));
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+            
+            if (minutes < 1) return 'Только что';
+            if (minutes < 60) return `${minutes} мин. назад`;
+            if (hours < 24) return `${hours} ч. назад`;
+            if (days === 1) return 'Вчера';
+            if (days < 7) return `${days} дн. назад`;
+            return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+        }
+        
+        function renderCategoryButtons() {
+            categoryButtons.innerHTML = '';
+            categories.forEach(category => {
+                const button = document.createElement('button');
+                button.className = 'category-btn';
+                button.textContent = category;
+                if (category === selectedCategory) {
+                    button.classList.add('active');
+                }
+                button.addEventListener('click', () => selectCategory(category));
+                categoryButtons.appendChild(button);
+            });
+        }
+        
+        function selectCategory(category) {
+            selectedCategory = category;
+            newCategory.value = '';
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent === category);
+            });
+        }
+        
+        function showRandomNeeds() {
+            randomNeeds.innerHTML = '';
+            randomPrayerNeeds = [];
+            if (needs.length === 0) {
+                randomNeeds.innerHTML = '<div class="message">У вас пока нет молитвенных нужд. Добавьте первую!</div>';
+                return;
+            }
+            const shuffled = [...needs].sort(() => 0.5 - Math.random());
+            randomPrayerNeeds = shuffled.slice(0, Math.min(5, needs.length));
+            randomPrayerNeeds.forEach((need, index) => {
+                const needElement = document.createElement('div');
+                needElement.className = 'message';
+                needElement.style.animationDelay = `${index * 0.05}s`;
+                needElement.innerHTML = `
+                    ${need.text}
+                    <span class="need-category">(${need.category})</span>
+                `;
+                randomNeeds.appendChild(needElement);
+            });
+        }
+        
+        async function generatePrayer() {
+            if (randomPrayerNeeds.length === 0) {
+                alert('Добавьте нужды для генерации молитвы!');
+                return;
+            }
+            prayerText.innerHTML = '<div class="loader"></div> Генерация молитвы...';
+            try {
+                const needsText = randomPrayerNeeds.map(n => n.text).join(', ');
+                const prompt = `Создай искреннюю, духовную христианскую молитву на русском языке на основе этих молитвенных нужд: ${needsText}. Молитва должна быть ободряющей, соответствовать библейским принципам и православной традиции. Добавь элементы благодарности и веры.`;
+                const response = await fetch(TOGETHER_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${TOGETHER_API_TOKEN}`
+                    },
+                    body: JSON.stringify({
+                        model: "meta-llama/Llama-3-70b-chat-hf",
+                        messages: [{ role: "user", content: prompt }],
+                        max_tokens: 600,
+                        temperature: 0.7
+                    })
+                });
+                const data = await response.json();
+                if (data.choices && data.choices.length > 0) {
+                    currentPrayer = data.choices[0].message.content.trim();
+                    prayerText.textContent = currentPrayer;
+                    savePrayerBtn.style.display = 'inline-block';
+                    sharePrayerBtn.style.display = 'inline-block';
+                } else {
+                    prayerText.textContent = "Не удалось сгенерировать молитву. Попробуйте еще раз.";
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                prayerText.textContent = "Произошла ошибка. Проверьте интернет.";
+            }
+        }
+        
+        function savePrayer() {
+            if (!currentPrayer) return;
+            const prayerNeed = {
+                id: Date.now().toString(),
+                text: currentPrayer,
+                category: 'Молитвы',
+                date: new Date().toISOString(),
+                answered: false
+            };
+            if (!categories.includes('Молитвы')) {
+                categories.push('Молитвы');
+                localStorage.setItem('prayerCategories', JSON.stringify(categories));
+                renderCategoryButtons();
+            }
+            needs.push(prayerNeed);
+            localStorage.setItem('prayerNeeds', JSON.stringify(needs));
+            alert('Молитва сохранена в категории "Молитвы"!');
+            savePrayerBtn.style.display = 'none';
+            sharePrayerBtn.style.display = 'none';
+            renderChatsList();
+        }
+        
+        function sharePrayer() {
+            if (!currentPrayer) return;
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Молитва',
+                    text: currentPrayer
+                }).catch(err => {
+                    console.error('Ошибка при попытке поделиться:', err);
+                    fallbackCopyToClipboard(currentPrayer);
+                });
+            } else {
+                fallbackCopyToClipboard(currentPrayer);
+            }
+        }
+        
+        function fallbackCopyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                alert('Молитва скопирована в буфер обмена!');
+            } catch (err) {
+                console.error('Ошибка копирования:', err);
+                alert('Не удалось скопировать. Попробуйте вручную.');
+            }
+            document.body.removeChild(textarea);
+        }
+        
+        function saveNeed() {
+            const text = needText.value.trim();
+            let category = selectedCategory;
+            if (newCategory.value.trim() !== '') {
+                category = newCategory.value.trim();
+                if (!categories.includes(category)) {
+                    categories.push(category);
+                    localStorage.setItem('prayerCategories', JSON.stringify(categories));
+                    renderCategoryButtons();
+                    renderChatsList();
+                }
+            }
+            if (text === '') {
+                alert('Введите текст молитвенной нужды!');
+                needText.focus();
+                return;
+            }
+            const id = needText.dataset.editId || Date.now().toString();
+            const existingIndex = needs.findIndex(n => n.id === id);
+            const newNeed = {
+                id: id,
+                text: text,
+                category: category,
+                date: new Date().toISOString(),
+                answered: existingIndex !== -1 ? needs[existingIndex].answered : false
+            };
+            if (existingIndex !== -1) {
+                needs[existingIndex] = newNeed;
+            } else {
+                needs.push(newNeed);
+            }
+            localStorage.setItem('prayerNeeds', JSON.stringify(needs));
+            alert('Нужда сохранена!');
+            switchSection('chats-list');
+        }
+        
+        function editNeed(id) {
+            const need = needs.find(n => n.id === id);
+            if (need) {
+                needText.value = need.text;
+                selectCategory(need.category);
+                switchSection('add-need');
+                needText.dataset.editId = id;
+            }
+        }
+        
+        function deleteNeed(id) {
+            if (confirm('Удалить эту нужду?')) {
+                needs = needs.filter(n => n.id !== id);
+                localStorage.setItem('prayerNeeds', JSON.stringify(needs));
+                if (currentChat) openChat(currentChat);
+                renderChatsList();
+            }
+        }
+        
+        function updateFontSize(size) {
+            document.documentElement.style.setProperty('--font-size-base', `${size}px`);
+            fontSizeValue.textContent = size;
+            localStorage.setItem('fontSize', size);
+        }
+        
+        function loadBackgroundColor() {
+            const savedColor = localStorage.getItem('backgroundColor');
+            if (savedColor) {
+                document.body.style.background = savedColor;
+                document.body.style.backgroundImage = 'none';
+                colorOptions.forEach(option => {
+                    option.classList.toggle('active', option.dataset.color === savedColor);
+                });
+            }
+        }
+        
+        function toggleDarkMode(isDark) {
+            document.body.classList.toggle('dark-mode', isDark);
+            localStorage.setItem('darkMode', isDark);
+        }
+        
+        function loadDarkMode() {
+            const isDark = localStorage.getItem('darkMode') === 'true';
+            darkModeToggle.checked = isDark;
+            toggleDarkMode(isDark);
+        }
+        
+        function setupSpeechRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                micBtn.style.display = 'none';
+                return;
+            }
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'ru-RU';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+            
+            micBtn.addEventListener('click', () => {
+                if (micBtn.classList.contains('active')) {
+                    recognition.stop();
+                    micBtn.classList.remove('active');
+                } else {
+                    recognition.start();
+                    micBtn.classList.add('active');
+                }
+            });
+            
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                needText.value += (needText.value ? ' ' : '') + transcript;
+                micBtn.classList.remove('active');
+            };
+            
+            recognition.onerror = (event) => {
+                console.error('Ошибка распознавания:', event.error);
+                micBtn.classList.remove('active');
+                alert('Ошибка голосового ввода: ' + event.error);
+            };
+            
+            recognition.onend = () => {
+                micBtn.classList.remove('active');
+            };
+        }
+        
+        burgerBtn.addEventListener('click', toggleMenu);
+        overlay.addEventListener('click', toggleMenu);
+        
+        menuItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const target = item.dataset.target;
+                switchSection(target);
+                toggleMenu();
+            });
+        });
+        
+        backToChats.addEventListener('click', () => switchSection('chats-list'));
+        addNeedBtn.addEventListener('click', () => switchSection('add-need'));
+        prayerBtn.addEventListener('click', () => switchSection('prayer-generator'));
+        generatePrayerBtn.addEventListener('click', generatePrayer);
+        savePrayerBtn.addEventListener('click', savePrayer);
+        sharePrayerBtn.addEventListener('click', sharePrayer);
+        deletePrayerBtn.addEventListener('click', () => {
+            prayerText.textContent = 'Нажмите "Сгенерировать молитву", чтобы создать молитву на основе этих нужд.';
+            currentPrayer = null;
+            savePrayerBtn.style.display = 'none';
+            sharePrayerBtn.style.display = 'none';
+            showRandomNeeds();
+        });
+        submitNeed.addEventListener('click', saveNeed);
+        
+        colorOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                const color = option.dataset.color;
+                document.body.style.background = color;
+                document.body.style.backgroundImage = 'none';
+                localStorage.setItem('backgroundColor', color);
+                localStorage.removeItem('customBackground');
+                colorOptions.forEach(opt => opt.classList.remove('active'));
+                option.classList.add('active');
+            });
+        });
+        
+        fontIncrease.addEventListener('click', () => {
+            if (currentFontSize < 24) {
+                currentFontSize += 1;
+                updateFontSize(currentFontSize);
+            }
+        });
+        
+        fontDecrease.addEventListener('click', () => {
+            if (currentFontSize > 12) {
+                currentFontSize -= 1;
+                updateFontSize(currentFontSize);
+            }
+        });
+        
+        resetDataBtn.addEventListener('click', () => {
+            if (confirm('Удалить все данные? Это нельзя отменить.')) {
+                localStorage.clear();
+                needs = [];
+                categories = ['Здоровье', 'Семья', 'Финансы', 'Духовный рост', 'Работа', 'Отношения', 'Другие'];
+                currentFontSize = 16;
+                updateFontSize(16);
+                toggleDarkMode(false);
+                document.body.style.background = '#F5F5DC';
+                document.body.style.backgroundImage = 'none';
+                renderChatsList();
+                renderCategoryButtons();
+                alert('Данные сброшены.');
+            }
+        });
+        
+        bgUploadBtn.addEventListener('click', () => bgUpload.click());
+        
+        bgUpload.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    document.body.style.backgroundImage = `url(${ev.target.result})`;
+                    localStorage.setItem('customBackground', ev.target.result);
+                    localStorage.removeItem('backgroundColor');
+                    colorOptions.forEach(opt => opt.classList.remove('active'));
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        darkModeToggle.addEventListener('change', (e) => {
+            toggleDarkMode(e.target.checked);
+        });
+        
+        document.addEventListener('touchstart', (e) => {
+            if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && !burgerBtn.contains(e.target)) {
+                toggleMenu();
+            }
+        });
+        
+        setupSpeechRecognition();
+    </script>
+</body>
+</html>
+
