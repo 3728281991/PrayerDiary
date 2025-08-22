@@ -130,7 +130,6 @@
             margin-top: 30px;
             text-align: left;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            display: none;
         }
 
         .instructions h3 {
@@ -193,7 +192,15 @@
             padding: 15px;
             margin-top: 20px;
             text-align: left;
-            display: none;
+        }
+        
+        .debug-info {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: left;
+            font-size: 0.9rem;
         }
     </style>
 </head>
@@ -241,120 +248,166 @@
         <div class="instructions" id="instructions">
             <h3><i class="fas fa-info-circle"></i> Как установить</h3>
             <ol>
-                <li>Нажмите на кнопку "Установить" выше</li>
-                <li>В появившемся окне подтвердите установку</li>
+                <li>Нажмите на кнопку "Установить" выше (если доступна)</li>
                 <li>Или используйте меню браузера: 
                     <ul>
-                        <li><strong>Chrome:</strong> ⋮ → "Установить приложение"</li>
-                        <li><strong>Safari:</strong> Поделиться → "На экран «Домой»"</li>
-                        <li><strong>Firefox:</strong> ⋮ → "Установить"</li>
+                        <li><strong>Chrome (Android):</strong> ⋮ → "Добавить на главный экран"</li>
+                        <li><strong>Safari (iOS):</strong> Поделиться → "На экран «Домой»"</li>
+                        <li><strong>Chrome (ПК):</strong> ⋮ → "Установить Молитвенный дневник"</li>
+                        <li><strong>Edge (ПК):</strong> ⋮ → "Приложения" → "Установить этот сайт как приложение"</li>
                     </ul>
                 </li>
+                <li>После установки откройте приложение с главного экрана</li>
             </ol>
         </div>
         
-        <div class="server-warning" id="serverWarning">
+        <div class="server-warning" id="serverWarning" style="display: none;">
             <h3><i class="fas fa-exclamation-triangle"></i> Внимание</h3>
             <p>Для установки приложения необходимо открыть эту страницу через веб-сервер (http:// или https://), а не как локальный файл.</p>
             <p>Если вы видите это сообщение, откройте страницу через сервер, например, используя Live Server в VS Code или разместив файлы на хостинге.</p>
         </div>
+        
+        <div class="debug-info" id="debugInfo" style="display: none;">
+            <h3><i class="fas fa-bug"></i> Информация для отладки</h3>
+            <div id="debugContent"></div>
+        </div>
     </div>
 
     <script>
-        let deferredPrompt;
+        // Элементы DOM
         const installBtn = document.getElementById('installBtn');
         const instructions = document.getElementById('instructions');
         const serverWarning = document.getElementById('serverWarning');
+        const debugInfo = document.getElementById('debugInfo');
+        const debugContent = document.getElementById('debugContent');
         
-        // Проверяем, запущено ли приложение как standalone
-        const isRunningStandalone = () => {
-            return window.matchMedia('(display-mode: standalone)').matches || 
-                   window.navigator.standalone === true;
-        };
+        // Переменные
+        let deferredPrompt = null;
+        let isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        let isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                          window.navigator.standalone === true;
         
-        // Проверяем, работает ли на безопасном origin
+        // Функции проверки
         const isSecureOrigin = () => {
             return window.location.protocol === 'https:' || 
                    window.location.hostname === 'localhost' || 
                    window.location.hostname === '127.0.0.1';
         };
         
-        // Если приложение уже установлено
-        if (isRunningStandalone()) {
-            document.body.innerHTML = `
-                <div class="container">
-                    <div class="app-icon">
-                        <i class="fas fa-hands-praying"></i>
-                    </div>
-                    <h1>Приложение установлено</h1>
-                    <p>Молитвенный дневник уже добавлен на ваш устройство</p>
-                    <button class="install-btn" onclick="window.close()">
-                        <i class="fas fa-check"></i> Закрыть эту страницу
-                    </button>
-                </div>
+        const isPWAInstalled = () => {
+            return isStandalone;
+        };
+        
+        // Показать отладочную информацию
+        function showDebugInfo() {
+            debugInfo.style.display = 'block';
+            debugContent.innerHTML = `
+                <p><strong>User Agent:</strong> ${navigator.userAgent}</p>
+                <p><strong>Протокол:</strong> ${window.location.protocol}</p>
+                <p><strong>Хост:</strong> ${window.location.hostname}</p>
+                <p><strong>Безопасное соединение:</strong> ${isSecureOrigin() ? 'Да' : 'Нет'}</p>
+                <p><strong>iOS устройство:</strong> ${isIOS ? 'Да' : 'Нет'}</p>
+                <p><strong>PWA установлено:</strong> ${isPWAInstalled() ? 'Да' : 'Нет'}</p>
+                <p><strong>Событие beforeinstallprompt:</strong> ${deferredPrompt ? 'Получено' : 'Не получено'}</p>
             `;
-            return;
         }
         
-        // Показываем предупреждение, если не безопасный origin
-        if (!isSecureOrigin()) {
-            serverWarning.style.display = 'block';
-            installBtn.disabled = true;
-            installBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Необходим веб-сервер';
+        // Обработчик кнопки установки
+        function handleInstallClick() {
+            if (deferredPrompt) {
+                // Показываем встроенное браузерное приглашение
+                deferredPrompt.prompt();
+                
+                // Ждем ответ пользователя
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('Пользователь принял установку');
+                        installBtn.innerHTML = '<i class="fas fa-check"></i> Приложение устанавливается';
+                        installBtn.disabled = true;
+                    } else {
+                        console.log('Пользователь отклонил установку');
+                    }
+                    deferredPrompt = null;
+                });
+            } else {
+                // Если событие beforeinstallprompt не произошло, показываем инструкции
+                instructions.style.display = 'block';
+                installBtn.innerHTML = '<i class="fas fa-info-circle"></i> Смотрите инструкции ниже';
+                
+                // Показываем отладочную информацию
+                showDebugInfo();
+            }
         }
         
-        // Обработка события beforeinstallprompt
+        // Основная логика
+        function init() {
+            // Если приложение уже установлено
+            if (isPWAInstalled()) {
+                document.body.innerHTML = `
+                    <div class="container">
+                        <div class="app-icon">
+                            <i class="fas fa-hands-praying"></i>
+                        </div>
+                        <h1>Приложение установлено</h1>
+                        <p>Молитвенный дневник уже добавлен на ваш устройство</p>
+                        <button class="install-btn" onclick="window.close()">
+                            <i class="fas fa-check"></i> Закрыть эту страницу
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Проверяем безопасное соединение
+            if (!isSecureOrigin()) {
+                serverWarning.style.display = 'block';
+                installBtn.disabled = true;
+                installBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Необходим веб-сервер';
+                showDebugInfo();
+                return;
+            }
+            
+            // Для iOS устройств меняем текст кнопки
+            if (isIOS) {
+                installBtn.innerHTML = '<i class="fas fa-mobile-alt"></i> Добавить на главный экран';
+            }
+            
+            // Назначаем обработчик клика на кнопку
+            installBtn.addEventListener('click', handleInstallClick);
+            
+            // Пытаемся зарегистрировать Service Worker
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js')
+                .then(registration => {
+                    console.log('ServiceWorker зарегистрирован: ', registration);
+                })
+                .catch(registrationError => {
+                    console.log('Ошибка регистрации ServiceWorker: ', registrationError);
+                });
+            }
+        }
+        
+        // Слушаем событие beforeinstallprompt
         window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('Событие beforeinstallprompt получено');
             e.preventDefault();
             deferredPrompt = e;
+            
+            // Активируем кнопку установки
             installBtn.disabled = false;
             installBtn.innerHTML = '<i class="fas fa-download"></i> Установить приложение';
             serverWarning.style.display = 'none';
-            
-            installBtn.addEventListener('click', async () => {
-                if (!deferredPrompt) {
-                    instructions.style.display = 'block';
-                    return;
-                }
-                
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                
-                if (outcome === 'accepted') {
-                    installBtn.innerHTML = '<i class="fas fa-check"></i> Приложение устанавливается';
-                    installBtn.disabled = true;
-                }
-                
-                deferredPrompt = null;
-            });
         });
         
-        // Если событие установки не сработало, показываем инструкции
-        setTimeout(() => {
-            if (!deferredPrompt && isSecureOrigin()) {
-                instructions.style.display = 'block';
-            }
-        }, 3000);
-        
-        // Отслеживаем успешную установку
+        // Слушаем событие appinstalled
         window.addEventListener('appinstalled', () => {
+            console.log('Приложение успешно установлено');
             installBtn.innerHTML = '<i class="fas fa-check"></i> Приложение установлено';
             installBtn.disabled = true;
-            instructions.style.display = 'none';
         });
         
-        // Регистрируем Service Worker для кэширования и офлайн-работы
-        if ('serviceWorker' in navigator && isSecureOrigin()) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                .then(registration => {
-                    console.log('SW registered: ', registration);
-                })
-                .catch(registrationError => {
-                    console.log('SW registration failed: ', registrationError);
-                });
-            });
-        }
+        // Инициализация при загрузке страницы
+        window.addEventListener('load', init);
     </script>
 </body>
 </html>
