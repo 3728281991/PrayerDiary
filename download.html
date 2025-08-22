@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Установить — Молитвенный дневник</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#8B4513">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body{margin:0;font-family:'Nunito',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#2C2B27;color:#fff}
+        .card{background:#332f2a;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,.3);padding:28px;width:min(560px,92vw);text-align:center}
+        .icon{font-size:64px;margin-bottom:10px}
+        h1{margin:0 0 6px 0}
+        p{color:#ddd}
+        .btn{margin-top:14px;padding:12px 18px;border:none;border-radius:12px;background:#8B4513;color:#fff;font-weight:900;cursor:pointer}
+        .hint{margin-top:10px;color:#ccc;font-size:.95rem}
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="icon">🙏</div>
+        <h1>Молитвенный дневник</h1>
+        <p>Установите приложение на телефон или компьютер и открывайте его полноэкранно, как нативное.</p>
+        <button class="btn" id="installBtn">Установить</button>
+        <div class="hint" id="hint">Если кнопка недоступна: откройте меню браузера → "Добавить на главный экран"</div>
+    </div>
+
+    <script>
+        const isSecure = location.protocol === 'https:' || location.protocol === 'http:';
+        if('serviceWorker' in navigator && isSecure){ navigator.serviceWorker.register('sw.js'); }
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installBtn').disabled = false;
+        });
+        document.getElementById('installBtn').addEventListener('click', async () => {
+            if (!isSecure){
+                document.getElementById('hint').textContent = 'Откройте страницу по адресу http:// или https:// (не file://). Например, запустите локальный сервер и откройте http://localhost.';
+                return;
+            }
+            if (!deferredPrompt) {
+                document.getElementById('hint').textContent = 'Если кнопка недоступна: меню браузера → "Добавить на главный экран"';
+                return;
+            }
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if(outcome==='accepted'){
+                document.getElementById('hint').textContent = 'Приложение установлено!';
+            }
+        });
+        window.addEventListener('appinstalled', ()=>{
+            document.getElementById('hint').textContent = 'Приложение установлено! Откройте с рабочего стола.';
+        });
+    </script>
+</body>
+</html>
+
